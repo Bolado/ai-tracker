@@ -19,3 +19,5 @@ The project is delivered as a Docker container, which the image is made through 
 - [ ] AI Summarization
 - [ ] Docker
 - [ ] GitHub Actions
+- [ ] RSS Feed
+- [ ] Webhooks
