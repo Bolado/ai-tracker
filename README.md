@@ -9,3 +9,13 @@ The application will use a mix of tools to achieve this goal, examples are Go, H
 ## Delivery
 
 The project is delivered as a Docker container, which the image is made through GitHub Actions. The image is then pushed to GitHub Container Registry and can be pulled from there.
+
+## Goals
+
+- [ ] Golang Backend
+- [ ] Scraping
+- [ ] HTMX Frontend
+- [ ] TailwindCSS
+- [ ] AI Summarization
+- [ ] Docker
+- [ ] GitHub Actions
