@@ -1,7 +1,7 @@
 package watcher
 
 import (
-	types "github.com/Bolado/aitracker/types"
+	types "github.com/Bolado/ai-tracker/types"
 )
 
 var (

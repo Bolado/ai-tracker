@@ -1,7 +1,7 @@
 package router
 
 import (
-	templates "github.com/Bolado/aitracker/website/templates"
+	templates "github.com/Bolado/ai-tracker/website/templates"
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
 )

@@ -1,4 +1,4 @@
-module github.com/Bolado/aitracker
+module github.com/Bolado/ai-tracker
 
 go 1.22.6
 

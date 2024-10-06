@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import (
-	watcher "github.com/Bolado/aitracker/watcher"
+	watcher "github.com/Bolado/ai-tracker/watcher"
 )
 
 func Index() templ.Component {
