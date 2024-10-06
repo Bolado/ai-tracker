@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetInit(r *gin.Engine) {
+func initializeGets(r *gin.Engine) {
 	r.GET("/", func(c *gin.Context) {
 		templ.Handler(templates.Index()).ServeHTTP(c.Writer, c.Request)
 	})

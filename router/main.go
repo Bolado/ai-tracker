@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func StartRouter() {
+func StartRouter() error {
 	r := gin.Default()
 
-	GetInit(r)
+	initializeGets(r)
 
-	r.Run(":8080")
+	return r.Run(":8080")
 }
