@@ -1,17 +1,15 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	templates "github.com/Bolado/aitracker/website/templates"
+	"github.com/a-h/templ"
+	"github.com/gin-gonic/gin"
+)
 
 func GetInit(r *gin.Engine) {
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.html", gin.H{
-			"title": "Main website",
-		})
+		templ.Handler(templates.Index()).ServeHTTP(c.Writer, c.Request)
 	})
 
-	r.GET("/api/articles", func(c *gin.Context) {
-		c.HTML(200, "articles.html", gin.H{
-			"title": "Articles",
-		})
-	})
+	r.Static("/static", "./website/static")
 }

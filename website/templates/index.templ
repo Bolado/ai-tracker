@@ -1,0 +1,29 @@
+package templates
+
+import (
+	watcher "github.com/Bolado/aitracker/watcher"
+)
+
+templ Index() {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title>AI Tracker</title>
+			<meta charset="UTF-8"/>
+			<link rel="stylesheet" href="/static/css/index.css"/>
+			<script src="/static/js/index.js"></script>
+		</head>
+		<body>
+			<h1>AI Tracker</h1>
+			<ul>
+				@articles()
+			</ul>
+		</body>
+	</html>
+}
+
+templ articles() {
+	for _, article := range watcher.Articles {
+		<li>{ article.Title }</li>
+	}
+}
