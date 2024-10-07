@@ -14,7 +14,7 @@ import (
 func main() {
 
 	//get env variables
-	interval, _ := strconv.Atoi(os.Getenv("INTERVAL"))
+	interval, _ := strconv.Atoi(os.Getenv("WATCHER_INTERVAL"))
 
 	// initialize the database
 	if err := database.StartDabase(); err != nil {
