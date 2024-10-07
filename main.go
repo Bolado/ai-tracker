@@ -2,6 +2,9 @@ package main
 
 import (
 	"log"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/Bolado/ai-tracker/database"
 	router "github.com/Bolado/ai-tracker/router"
@@ -9,6 +12,10 @@ import (
 )
 
 func main() {
+
+	//get env variables
+	interval, _ := strconv.Atoi(os.Getenv("INTERVAL"))
+
 	// initialize the database
 	if err := database.StartDabase(); err != nil {
 		log.Fatalf("Failed to start database: %v\n", err)
@@ -22,9 +29,18 @@ func main() {
 	log.Println("Articles loaded")
 
 	// start the watcher
-	if err := watcher.StartWatcher(); err != nil {
-		log.Fatalf("Failed to start watcher: %v\n", err)
-	}
+	go func() {
+		for {
+			if err := watcher.StartWatcher(); err != nil {
+				log.Fatalf("Failed to start watcher: %v\n", err)
+			}
+			if interval == 0 {
+				time.Sleep(15 * time.Minute)
+			} else {
+				time.Sleep(time.Duration(interval) * time.Minute)
+			}
+		}
+	}()
 	log.Println("Watcher started")
 
 	// start the router and listen for requests

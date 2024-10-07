@@ -9,3 +9,14 @@ type Article struct {
 	Source  string `json:"source" bson:"source"`
 	Image   string `json:"image" bson:"image"`
 }
+
+type Website struct {
+	Name               string `json: "name"`
+	Url                string `json: "url"`
+	MainElement        string `json: "mainElement"`
+	TitleElement       string `json: "titleElement"`
+	SubtitleElement    string `json: "subtitleElement"`
+	ImageElement       string `json: "imageElement"`
+	DescriptionElement string `json: "descriptionElement"`
+	AnchorElement      string `json: "anchorElement"`
+}

@@ -2,6 +2,11 @@
     {
         "name": "",
         "url": "",
-        "element": ""
+        "mainElement": "",
+        "titleElement": "",
+        "subtitleElement": "",
+        "imageElement": "",
+        "descriptionElement": "",
+        "anchorElement": ""
     }
 ]
