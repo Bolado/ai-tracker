@@ -125,44 +125,115 @@ func readWordsJSON() ([]string, error) {
 	return words, nil
 }
 
+// watch the websites provided for new articles, summarizing and adding only the non existant ones to the database and the struct array
 func watchWebsite(website types.Website, browser *rod.Browser) error {
+	//navigate to the website url
 	page, err := browser.Page(proto.TargetCreateTarget{URL: website.Url})
 	if err != nil {
 		return err
 	}
-
-	el, err := page.Timeout(10 * time.Second).ElementsX(website.MainElement)
+	//wait for 10 seconds for the articles elements to load on the page
+	els, err := page.Timeout(10 * time.Second).ElementsX(website.MainElement)
 	if err != nil {
 		return err
 	}
 
+	// loop through the elements found, and navigate to each relevant article that is not existant, then do the necessary tasks
 articlesLoop:
-	for _, e := range el {
+	for _, e := range els {
+
+		//get article title element
 		articleTitleElement, err := e.ElementX(website.TitleElement)
 		if err != nil {
 			return err
 		}
 
+		//get the article title text
 		articleTitle := articleTitleElement.MustText()
 
+		//check for relevant words on the title itself
 		for _, word := range words {
 			// check if article title contains relevant word
 			if strings.Contains(articleTitle, word) {
-
-				//get anchor element and then url of the article
-				urlElement, err := e.ElementX(website.AnchorElement)
-				if err != nil {
+				// analyze the article further
+				if existant, added, err := analyzeArticle(e, page, website, articleTitle); err != nil {
 					return err
+				} else {
+					if existant || added {
+						continue articlesLoop
+					}
 				}
-				url := urlElement.MustProperty("href").String()
 
-				// if its already in the array, continue the loop
-				if isExistant(url) {
-					continue articlesLoop
-				}
+				break
 			}
 		}
 	}
 
 	return nil
+}
+
+// analyze article
+func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title string) (existent bool, added bool, err error) {
+	var article types.Article
+	//get anchor element and then url of the article
+	urlElement, err := e.ElementX(website.AnchorElement)
+	if err != nil {
+		return false, false, err
+	}
+	url := urlElement.MustProperty("href").String()
+
+	// if its already in the array, continue the loop
+	if isExistant(url) {
+		return true, false, nil
+	}
+
+	//get the article image url if provided
+	if website.ImageElement != "" {
+		imageElement, err := e.ElementX(website.ImageElement)
+		if err != nil {
+			return false, false, err
+		}
+		imgURL := imageElement.MustProperty("src").String()
+		article.Image = imgURL
+	}
+
+	article.Link = url
+	article.Title = title
+
+	//navigate to the article page
+	err = page.Navigate(url)
+	if err != nil {
+		return false, false, err
+	}
+
+	//wait for the article content element to load and get it
+	contentElement, err := page.Timeout(10 * time.Second).ElementX(website.ContentElement)
+	if err != nil {
+		return false, false, err
+	}
+
+	//get the content from the article page
+	article.Content = contentElement.MustText()
+
+	//make summary of the article now
+	//
+	//
+	//
+
+	//get subtitle if there is
+	if website.SubtitleElement != "" {
+		subtitleElement, err := page.ElementX(website.SubtitleElement)
+		if err != nil {
+			return false, false, err
+		}
+		article.Content = subtitleElement.MustText() + "\n" + article.Content
+	}
+
+	//add article to the database and on the program struct array
+	err = addArticle(article)
+	if err != nil {
+		return false, false, err
+	}
+
+	return false, true, nil
 }
