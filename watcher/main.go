@@ -18,24 +18,27 @@ var (
 	words    []string
 )
 
+// StartWatcher starts the watcher process.
 func StartWatcher() error {
-	//read ./websites to have
-
+	// Start the Rod browser instance
 	browser, err := startRod()
 	if err != nil {
 		return err
 	}
 
+	// Read the list of websites from a JSON file
 	websites, err := readWebsitesJSON()
 	if err != nil {
 		return err
 	}
 
+	// Read the list of words to monitor from a JSON file
 	words, err = readWordsJSON()
 	if err != nil {
 		return err
 	}
 
+	// Iterate over each website and start watching it
 	for _, website := range websites {
 		err := watchWebsite(website, browser)
 		if err != nil {
@@ -76,21 +79,27 @@ func addArticle(article types.Article) error {
 }
 
 func startRod() (*rod.Browser, error) {
+	// Create a new launcher instance
 	launcher := launcher.New()
+	// Set the launcher to run in headless mode
 	launcher.Headless(true)
 
+	// Launch the browser and get the URL
 	url, err := launcher.Launch()
 	if err != nil {
 		return nil, err
 	}
 
+	// Create a new browser instance and set the control URL
 	browser := rod.New().ControlURL(url)
 
+	// Connect to the browser
 	err = browser.Connect()
 	if err != nil {
 		return nil, err
 	}
 
+	// Return the browser instance
 	return browser, nil
 }
 
@@ -156,14 +165,13 @@ articlesLoop:
 			// check if article title contains relevant word
 			if strings.Contains(articleTitle, word) {
 				// analyze the article further
-				if existant, added, err := analyzeArticle(e, page, website, articleTitle); err != nil {
+				existant, added, err := analyzeArticle(e, page, website, articleTitle)
+				if err != nil {
 					return err
-				} else {
-					if existant || added {
-						continue articlesLoop
-					}
 				}
-
+				if existant || added {
+					continue articlesLoop
+				}
 				break
 			}
 		}

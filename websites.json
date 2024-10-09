@@ -1,22 +1,22 @@
 [
     {
-        "name": "",
-        "url": "",
-        "mainElement": "",
-        "titleElement": "",
-        "subtitleElement": "",
-        "imageElement": "",
-        "descriptionElement": "",
-        "anchorElement": ""
+        "name": "wired",
+        "url": "https://www.wired.com/most-recent/",
+        "mainElement": "//div[contains(@data-in-view,'Summary')]",
+        "titleElement": "//h3",
+        "anchorElement": "//a[@href]",
+        "imageElement": "//img",
+        "subtitleElement": "//div[contains(@data-testid,'ContentHeaderAccreditation')]//div",
+        "contentElement": "//div[@data-testid='ArticlePageChunks']//p[contains(@class,'paywall') and not(@class='')]"
     },
     {
-        "name": "",
-        "url": "",
-        "mainElement": "",
-        "titleElement": "",
-        "subtitleElement": "",
-        "imageElement": "",
-        "descriptionElement": "",
-        "anchorElement": ""
+        "name": "the-verge",
+        "url": "https://www.theverge.com/ai-artificial-intelligence",
+        "mainElement": "//div[contains(@class,'duet--content-cards--content-card') and .//div[@class='flex items-center']]",
+        "titleElement": "//h2/a",
+        "anchorElement": "//h2/a",
+        "imageElement": "//img[@data-nimg='fill' and  not(@data-native-ad-id)]",
+        "subtitleElement": "//article//span/h2",
+        "contentElement": "//div[@class='duet--article--article-body-component']"
     }
 ]
