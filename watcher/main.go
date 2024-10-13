@@ -151,11 +151,14 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("Navigating to %s\n", website.Url)
+
 	//wait for 10 seconds for the articles elements to load on the page
 	els, err := page.Timeout(10 * time.Second).ElementsX(website.MainElement)
 	if err != nil {
 		return err
 	}
+	log.Printf("Looking at %d articles on %s\n", len(els), website.Name)
 
 	// loop through the elements found, and navigate to each relevant article that is not existant, then do the necessary tasks
 articlesLoop:
@@ -169,6 +172,7 @@ articlesLoop:
 
 		//get the article title text
 		articleTitle := articleTitleElement.MustText()
+		log.Printf("Checking article %s\n", articleTitle)
 
 		//check for relevant words on the title itself
 		for _, word := range words {
@@ -180,6 +184,8 @@ articlesLoop:
 					return err
 				}
 				if existant || added {
+					log.Printf("Article %s is already existant or added\n", articleTitle)
+					// if the article is already existant or added, continue the loop
 					continue articlesLoop
 				}
 				break
@@ -199,6 +205,7 @@ func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title
 		return false, false, err
 	}
 	url := urlElement.MustProperty("href").String()
+	log.Printf("Analyzing article %s, got the url: %s, checking if it's already saved.\n", title, url)
 
 	// if its already in the array, continue the loop
 	if isExistant(url) {
@@ -218,20 +225,31 @@ func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title
 	article.Link = url
 	article.Title = title
 
+	log.Printf("Article %s is not existant, navigating to the article page.\n", title)
+
 	//navigate to the article page
 	err = page.Navigate(url)
 	if err != nil {
 		return false, false, err
 	}
 
-	//wait for the article content element to load and get it
-	contentElement, err := page.Timeout(10 * time.Second).ElementX(website.ContentElement)
+	//wait for 10 seconds for the article page to load
+	contentElements, err := page.Timeout(10 * time.Second).ElementsX(website.ContentElement)
 	if err != nil {
 		return false, false, err
 	}
 
-	//get the content from the article page
-	article.Content = contentElement.MustText()
+	// iterate over the content elements and concatenate the text
+	var content strings.Builder
+	for _, element := range contentElements {
+		contentText := element.MustText()
+		content.WriteString(contentText)
+		content.WriteString("\n")
+	}
+
+	// get the final content string
+	article.Content = content.String()
+	log.Printf("Got the content of the article %s\n", title)
 
 	//make summary of the article now
 	//
@@ -246,6 +264,8 @@ func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title
 		}
 		article.Content = subtitleElement.MustText() + "\n" + article.Content
 	}
+
+	log.Printf("Adding the article %s to the database\n", title)
 
 	//add article to the database and on the program struct array
 	err = addArticle(article)
