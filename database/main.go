@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
+	"log"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 var (
@@ -12,7 +13,7 @@ var (
 	collection *mongo.Collection
 )
 
-func StartDabase() error {
+func StartDatabase() error {
 	if err := connectDatabase(); err != nil {
 		return err
 	}
@@ -20,11 +21,14 @@ func StartDabase() error {
 }
 
 func connectDatabase() error {
+	// connection string for the mongodb container
+	mongoURI := "mongodb://admin:password@localhost:27017/?authSource=admin"
+
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI(mongoURI)
 
 	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(clientOptions)
 	if err != nil {
 		return err
 	}
@@ -42,4 +46,13 @@ func connectDatabase() error {
 	collection = db.Collection("articles")
 
 	return nil
+}
+
+func CloseDatabase() {
+	// Close the connection with a timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 10)
+	defer cancel()
+	if err := db.Client().Disconnect(ctx); err != nil {
+		log.Fatalf("Failed to close database: %v\n", err)
+	}
 }

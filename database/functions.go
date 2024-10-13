@@ -18,7 +18,7 @@ func InsertArticle(article types.Article) error {
 func GetArticles() ([]types.Article, error) {
 	var articles []types.Article
 
-	cursor, err := collection.Find(context.TODO(), bson.D{})
+	cursor, err := collection.Find(context.TODO(), bson.M{})
 	if err != nil {
 		return nil, err
 	}

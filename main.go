@@ -17,10 +17,12 @@ func main() {
 	interval, _ := strconv.Atoi(os.Getenv("WATCHER_INTERVAL"))
 
 	// initialize the database
-	if err := database.StartDabase(); err != nil {
+	err := database.StartDatabase()
+	if err != nil {
 		log.Fatalf("Failed to start database: %v\n", err)
 	}
 	log.Println("Database started")
+	defer database.CloseDatabase()
 
 	// load articles from the database
 	if err := watcher.LoadArticles(); err != nil {

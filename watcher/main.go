@@ -2,7 +2,9 @@ package watcher
 
 import (
 	"encoding/json"
+	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -38,11 +40,14 @@ func StartWatcher() error {
 		return err
 	}
 
+	log.Printf("Loaded %d websites and %d words\n", len(websites), len(words))
+
 	// Iterate over each website and start watching it
 	for _, website := range websites {
+		log.Printf("Watching website %s\n", website.Name)
 		err := watchWebsite(website, browser)
 		if err != nil {
-			return err
+			log.Printf("Error eccured while watching website %s: %v\n", website.Name, err)
 		}
 	}
 
@@ -68,6 +73,7 @@ func isExistant(link string) bool {
 }
 
 func addArticle(article types.Article) error {
+	log.Printf("Adding article %s\n", article.Title)
 
 	if err := database.InsertArticle(article); err != nil {
 		return err
@@ -81,6 +87,10 @@ func addArticle(article types.Article) error {
 func startRod() (*rod.Browser, error) {
 	// Create a new launcher instance
 	launcher := launcher.New()
+
+	// set path to the browser executable (optional)
+	launcher.Bin(getChromiumPath())
+
 	// Set the launcher to run in headless mode
 	launcher.Headless(true)
 
@@ -244,4 +254,19 @@ func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title
 	}
 
 	return false, true, nil
+}
+
+// try to find on the system where chromium is by using which command
+func getChromiumPath() string {
+	cmd := exec.Command("which", "chromium")
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	log.Printf("Chromium path: %s\n", string(out))
+
+	// remove the newline character from the output
+	out = out[:len(out)-1]
+
+	return string(out)
 }
