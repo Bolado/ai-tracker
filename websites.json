@@ -16,7 +16,7 @@
         "titleElement": ".//h2/a",
         "anchorElement": ".//h2/a",
         "imageElement": ".//img[@data-nimg='fill' and  not(@data-native-ad-id)]",
-        "subtitleElement": "//article//span/h2",
+        "subtitleElement": "//h2[preceding-sibling::div[preceding-sibling::ul] or parent::span]",
         "contentElement": "//div[@class='duet--article--article-body-component']"
     }
 ]
