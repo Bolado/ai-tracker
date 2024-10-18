@@ -92,7 +92,7 @@ func startRod() (*rod.Browser, error) {
 	launcher.Bin(getChromiumPath())
 
 	// Set the launcher to run in headless mode
-	launcher.Headless(true)
+	launcher.Headless(false)
 
 	// Launch the browser and get the URL
 	url, err := launcher.Launch()
@@ -153,6 +153,12 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 	}
 	log.Printf("Navigating to %s\n", website.Url)
 
+	//wait two seconds for network activity to settle
+	page.WaitRequestIdle(2*time.Second, nil, nil, nil)
+
+	//scroll some of the page
+	page.Mouse.Scroll(0, 2000, 50)
+
 	//wait for 10 seconds for the articles elements to load on the page
 	els, err := page.Timeout(10 * time.Second).ElementsX(website.MainElement)
 	if err != nil {
@@ -163,7 +169,6 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 	// loop through the elements found, and navigate to each relevant article that is not existant, then do the necessary tasks
 articlesLoop:
 	for _, e := range els {
-
 		//get article title element
 		articleTitleElement, err := e.ElementX(website.TitleElement)
 		if err != nil {
