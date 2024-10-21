@@ -92,7 +92,7 @@ func startRod() (*rod.Browser, error) {
 	launcher.Bin(getChromiumPath())
 
 	// Set the launcher to run in headless mode
-	launcher.Headless(true)
+	launcher.Headless(false)
 
 	// Launch the browser and get the URL
 	url, err := launcher.Launch()
@@ -152,6 +152,13 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 		return err
 	}
 	log.Printf("Navigating to %s\n", website.Url)
+	defer page.Close()
+
+	//wait two seconds for network activity to settle
+	page.WaitRequestIdle(2*time.Second, nil, nil, nil)
+
+	//scroll some of the page
+	page.Mouse.Scroll(0, 5000, 50)
 
 	//wait for 10 seconds for the articles elements to load on the page
 	els, err := page.Timeout(10 * time.Second).ElementsX(website.MainElement)
@@ -163,7 +170,6 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 	// loop through the elements found, and navigate to each relevant article that is not existant, then do the necessary tasks
 articlesLoop:
 	for _, e := range els {
-
 		//get article title element
 		articleTitleElement, err := e.ElementX(website.TitleElement)
 		if err != nil {
@@ -178,8 +184,11 @@ articlesLoop:
 		for _, word := range words {
 			// check if article title contains relevant word
 			if strings.Contains(articleTitle, word) {
+				// if it does, log it
+				log.Printf("Article %s contains relevant word %s\n", articleTitle, word)
+
 				// analyze the article further
-				existant, added, err := analyzeArticle(e, page, website, articleTitle)
+				existant, added, err := analyzeArticle(e, browser, website, articleTitle)
 				if err != nil {
 					return err
 				}
@@ -197,7 +206,7 @@ articlesLoop:
 }
 
 // analyze article
-func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title string) (existent bool, added bool, err error) {
+func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website, title string) (existent bool, added bool, err error) {
 	var article types.Article
 	//get anchor element and then url of the article
 	urlElement, err := e.ElementX(website.AnchorElement)
@@ -216,10 +225,11 @@ func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title
 	if website.ImageElement != "" {
 		imageElement, err := e.ElementX(website.ImageElement)
 		if err != nil {
-			return false, false, err
+			article.Image = "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=growtika-nGoCBxiaRO0-unsplash.jpg&w=640"
+		} else {
+			article.Image = imageElement.MustProperty("src").String()
 		}
-		imgURL := imageElement.MustProperty("src").String()
-		article.Image = imgURL
+
 	}
 
 	article.Link = url
@@ -227,11 +237,15 @@ func analyzeArticle(e *rod.Element, page *rod.Page, website types.Website, title
 
 	log.Printf("Article %s is not existant, navigating to the article page.\n", title)
 
-	//navigate to the article page
-	err = page.Navigate(url)
+	//navigate to the article page on a new tab
+	page, err := browser.Page(proto.TargetCreateTarget{URL: url})
 	if err != nil {
 		return false, false, err
 	}
+	defer page.Close()
+
+	//scroll through the article a little bit
+	page.Mouse.Scroll(0, 3000, 50)
 
 	//wait for 10 seconds for the article page to load
 	contentElements, err := page.Timeout(10 * time.Second).ElementsX(website.ContentElement)
