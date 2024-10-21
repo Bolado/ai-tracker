@@ -9,11 +9,13 @@ import (
 	"github.com/Bolado/ai-tracker/database"
 	router "github.com/Bolado/ai-tracker/router"
 	"github.com/Bolado/ai-tracker/watcher"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
 	//get env variables
+	godotenv.Load()
 	interval, _ := strconv.Atoi(os.Getenv("WATCHER_INTERVAL"))
 
 	// initialize the database

@@ -72,7 +72,7 @@ func articles() templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		for _, article := range watcher.Articles {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li><article class=\"flex flex-row items-center my-4 p-6 bg-neutral-500 dark:bg-neutral-600 rounded-md\"><div class=\"flex justify-between flex-col ml-2\"><h2 class=\"text-xl text-cyan-600 dark:text-cyan-300 font-bold\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li><article class=\"flex flex-row items-center my-4 p-6 bg-neutral-500 dark:bg-neutral-600 rounded-md\"><div class=\"flex justify-between flex-col pr-4\"><h2 class=\"text-xl text-cyan-600 dark:text-cyan-300 font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -90,7 +90,7 @@ func articles() templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(article.Content)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(article.Summary)
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `website/templates/index.templ`, Line: 41, Col: 38}
 			}

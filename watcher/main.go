@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Bolado/ai-tracker/ai"
 	database "github.com/Bolado/ai-tracker/database"
 	types "github.com/Bolado/ai-tracker/types"
 	"github.com/go-rod/rod"
@@ -261,10 +262,12 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 	article.Content = content.String()
 	log.Printf("Got the content of the article %s\n", title)
 
-	//make summary of the article now
-	//
-	//
-	//
+	//summarize the article
+	summary, err := ai.Summarize(article.Content)
+	if err != nil {
+		return false, false, err
+	}
+	article.Summary = summary
 
 	//get subtitle if there is
 	if website.SubtitleElement != "" {
