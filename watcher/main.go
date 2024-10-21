@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -87,9 +86,6 @@ func addArticle(article types.Article) error {
 func startRod() (*rod.Browser, error) {
 	// Create a new launcher instance
 	launcher := launcher.New()
-
-	// set path to the browser executable (optional)
-	launcher.Bin(getChromiumPath())
 
 	// Set the launcher to run in headless mode
 	launcher.Headless(false)
@@ -261,7 +257,7 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 		content.WriteString("\n")
 	}
 
-	// get the final content string
+	// get the compiled content string
 	article.Content = content.String()
 	log.Printf("Got the content of the article %s\n", title)
 
@@ -279,7 +275,18 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 		article.Content = subtitleElement.MustText() + "\n" + article.Content
 	}
 
+	//get date if there is
+	if website.DateElement != "" {
+		dateElement, err := page.ElementX(website.DateElement)
+		if err != nil {
+			return false, false, err
+		}
+		article.Date = *dateElement.MustAttribute("datetime")
+	}
+
 	log.Printf("Adding the article %s to the database\n", title)
+
+	article.Source = website.Name
 
 	//add article to the database and on the program struct array
 	err = addArticle(article)
@@ -288,19 +295,4 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 	}
 
 	return false, true, nil
-}
-
-// try to find on the system where chromium is by using which command
-func getChromiumPath() string {
-	cmd := exec.Command("which", "chromium")
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	log.Printf("Chromium path: %s\n", string(out))
-
-	// remove the newline character from the output
-	out = out[:len(out)-1]
-
-	return string(out)
 }

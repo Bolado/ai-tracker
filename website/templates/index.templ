@@ -2,28 +2,55 @@ package templates
 
 import (
 	"github.com/Bolado/ai-tracker/watcher"
+	"time"
 )
 
 templ Index() {
 	<!DOCTYPE html>
-	<html>
+	<html lang="en">
 		<head>
 			<title>AI Tracker</title>
 			<meta charset="UTF-8"/>
+			<link href="https://cdn.jsdelivr.net/npm/reset-css@5.0.2/reset.min.css" rel="stylesheet"/>
+			<script src="https://cdn.tailwindcss.com"></script>
 			<link rel="stylesheet" href="/static/css/index.css"/>
 			<script src="/static/js/index.js"></script>
 		</head>
-		<body>
-			<h1>AI Tracker</h1>
-			<ul>
-				@articles()
-			</ul>
+		<body class="bg-neutral-300	dark:bg-neutral-800 dark:text-white">
+			<header class="py-12 flex place-content-center">
+				<h1 class="text-6xl text-cyan-600 dark:text-cyan-300">AI Tracker 🤖</h1>
+			</header>
+			<main class="max-w-screen-md mx-auto">
+				<ul>
+					@articles()
+				</ul>
+			</main>
+			<footer class="flex place-content-center">
+				<p class="py-4">Made with ❤️ by <a class="text-cyan-600 dark:text-cyan-300" href="https://github.com/bolado">igor</a></p>
+			</footer>
 		</body>
 	</html>
 }
 
 templ articles() {
 	for _, article := range watcher.Articles {
-		<li>{ article.Title }</li>
+		<li>
+			<article class="flex flex-row items-center my-4 p-6 bg-neutral-500 dark:bg-neutral-600 rounded-md">
+				<div class="flex justify-between flex-col pr-4">
+					<h2 class="text-xl text-cyan-600 dark:text-cyan-300 font-bold">{ article.Title }</h2>
+					<p class="py-2">{ article.Content }</p>
+					<time class="text-cyan-600 dark:text-cyan-300 font-bold" datetime={ article.Date }>
+						{ time.Unix(func() int64 {
+						if t, err := time.Parse(time.RFC3339, article.Date); err == nil {
+							return t.Unix()
+						} else {
+							return 0
+						}
+					}(), 0).Format("Jan 2 2006 15:04") }
+					</time>
+				</div>
+				<img src={ article.Image } class="w-1/5 h-auto max-h-auto object-contain rounded-md"/>
+			</article>
+		</li>
 	}
 }

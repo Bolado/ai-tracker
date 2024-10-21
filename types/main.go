@@ -22,4 +22,5 @@ type Website struct {
 	ImageElement    string `json:"imageElement"`
 	ContentElement  string `json:"contentElement"`
 	AnchorElement   string `json:"anchorElement"`
+	DateElement     string `json:"dateElement"`
 }
