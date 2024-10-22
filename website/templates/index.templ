@@ -35,21 +35,17 @@ templ Index() {
 templ articles() {
 	for _, article := range watcher.Articles {
 		<li>
-			<article class="flex flex-row items-center my-4 p-6 bg-neutral-500 dark:bg-neutral-600 rounded-md">
-				<div class="flex justify-between flex-col pr-4">
-					<h2 class="text-xl text-cyan-600 dark:text-cyan-300 font-bold">{ article.Title }</h2>
-					<p class="py-2">{ article.Summary }</p>
-					<time class="text-cyan-600 dark:text-cyan-300 font-bold" datetime={ article.Date }>
-						{ time.Unix(func() int64 {
-						if t, err := time.Parse(time.RFC3339, article.Date); err == nil {
-							return t.Unix()
-						} else {
-							return 0
-						}
-					}(), 0).Format("Jan 2 2006 15:04") }
-					</time>
-				</div>
-				<img src={ article.Image } class="w-1/5 h-auto max-h-auto object-contain rounded-md"/>
+			<article class="my-4 bg-neutral-500 dark:bg-neutral-600 hover:drop-shadow-[0_0_0.5rem_rgba(20,170,200,0.25)] rounded-md">
+				<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer" class="flex flex-row items-center  p-6">
+					<div class="flex justify-between flex-col pr-4">
+						<h2 class="text-xl text-cyan-600 dark:text-cyan-300 font-bold">{ article.Title }</h2>
+						<p class="py-2">{ article.Summary }</p>
+						<time class="text-cyan-600 dark:text-cyan-300 font-bold" datetime={ time.Unix(article.Timestamp, 0).Format("2006-01-02T15:04:05Z07:00") }>
+							{ time.Unix(article.Timestamp, 0).Format("Jan 2 2006 15:04") }
+						</time>
+					</div>
+					<img src={ article.Image } class="w-1/5 h-auto max-h-auto object-contain rounded-md"/>
+				</a>
 			</article>
 		</li>
 	}

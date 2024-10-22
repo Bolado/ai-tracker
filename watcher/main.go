@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -80,6 +81,9 @@ func addArticle(article types.Article) error {
 	}
 
 	Articles = append(Articles, article)
+	sort.Slice(Articles, func(i, j int) bool {
+		return Articles[i].Timestamp > Articles[j].Timestamp
+	})
 
 	return nil
 }
@@ -154,13 +158,19 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 	//wait two seconds for network activity to settle
 	page.WaitRequestIdle(2*time.Second, nil, nil, nil)
 
-	//scroll some of the page
-	page.Mouse.Scroll(0, 5000, 50)
+	var els []*rod.Element
+	for {
+		//scroll some of the page
+		page.Mouse.Scroll(0, 10000, 100)
 
-	//wait for 10 seconds for the articles elements to load on the page
-	els, err := page.Timeout(10 * time.Second).ElementsX(website.MainElement)
-	if err != nil {
-		return err
+		//wait for 10 seconds for the articles elements to load on the page
+		els, err = page.Timeout(10 * time.Second).ElementsX(website.MainElement)
+		if err != nil {
+			return err
+		}
+		if len(els) > 10 {
+			break
+		}
 	}
 	log.Printf("Looking at %d articles on %s\n", len(els), website.Name)
 
@@ -220,7 +230,9 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 
 	//get the article image url if provided
 	if website.ImageElement != "" {
-		imageElement, err := e.ElementX(website.ImageElement)
+		e.ScrollIntoView()
+		time.Sleep(1 * time.Second)
+		imageElement, err := e.Timeout(10 * time.Second).ElementX(website.ImageElement)
 		if err != nil {
 			article.Image = "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=growtika-nGoCBxiaRO0-unsplash.jpg&w=640"
 		} else {
@@ -242,7 +254,7 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 	defer page.Close()
 
 	//scroll through the article a little bit
-	page.Mouse.Scroll(0, 3000, 50)
+	page.Mouse.Scroll(0, 10000, 100)
 
 	//wait for 10 seconds for the article page to load
 	contentElements, err := page.Timeout(10 * time.Second).ElementsX(website.ContentElement)
@@ -284,7 +296,12 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 		if err != nil {
 			return false, false, err
 		}
-		article.Date = *dateElement.MustAttribute("datetime")
+		datetime := *dateElement.MustAttribute("datetime")
+		t, err := time.Parse(time.RFC3339, datetime)
+		if err != nil {
+			return false, false, err
+		}
+		article.Timestamp = t.Unix()
 	}
 
 	log.Printf("Adding the article %s to the database\n", title)
