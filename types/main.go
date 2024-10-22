@@ -24,3 +24,9 @@ type Website struct {
 	AnchorElement   string `json:"anchorElement"`
 	DateElement     string `json:"dateElement"`
 }
+
+type ArticlesListItem struct {
+	Title string
+	Link  string
+	Image string
+}

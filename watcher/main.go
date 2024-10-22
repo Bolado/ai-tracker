@@ -1,9 +1,11 @@
 package watcher
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"os"
+	"os/exec"
 	"sort"
 	"strings"
 	"time"
@@ -92,6 +94,9 @@ func startRod() (*rod.Browser, error) {
 	// Create a new launcher instance
 	launcher := launcher.New()
 
+	// set the browser path for nixos using which
+	launcher.Bin(getChromiumPath())
+
 	// Set the launcher to run in headless mode
 	launcher.Headless(false)
 
@@ -147,7 +152,7 @@ func readWordsJSON() ([]string, error) {
 
 // watch the websites provided for new articles, summarizing and adding only the non existant ones to the database and the struct array
 func watchWebsite(website types.Website, browser *rod.Browser) error {
-	//navigate to the website url
+	//load the website url
 	page, err := browser.Page(proto.TargetCreateTarget{URL: website.Url})
 	if err != nil {
 		return err
@@ -155,56 +160,61 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 	log.Printf("Navigating to %s\n", website.Url)
 	defer page.Close()
 
-	//wait two seconds for network activity to settle
-	page.WaitRequestIdle(2*time.Second, nil, nil, nil)
+	//wait for the page to load
+	page.WaitStable(2 * time.Second)
 
-	var els []*rod.Element
-	for {
-		//scroll some of the page
-		page.Mouse.Scroll(0, 10000, 100)
+	//zoom out the page to 1% to make sure all the elements are loaded
+	page.Eval("document.body.style.zoom = '1%'")
 
-		//wait for 10 seconds for the articles elements to load on the page
-		els, err = page.Timeout(10 * time.Second).ElementsX(website.MainElement)
-		if err != nil {
-			return err
-		}
-		if len(els) > 10 {
-			break
-		}
+	//wait for the page to load the rest of the elements
+	page.WaitStable(2 * time.Second)
+
+	//create context and cancel function to avoid the context ending before you get elements data
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	//get the articles available on the website
+	els, err := page.Context(ctx).ElementsX(website.MainElement)
+	if err != nil {
+		return err
 	}
-	log.Printf("Looking at %d articles on %s\n", len(els), website.Name)
 
-	// loop through the elements found, and navigate to each relevant article that is not existant, then do the necessary tasks
-articlesLoop:
-	for _, e := range els {
-		//get article title element
-		articleTitleElement, err := e.ElementX(website.TitleElement)
-		if err != nil {
-			return err
-		}
+	var articlesListItems []types.ArticlesListItem
 
-		//get the article title text
-		articleTitle := articleTitleElement.MustText()
-		log.Printf("Checking article %s\n", articleTitle)
+	//populate the articles array with the articles found on the website, which contains the title, link and image
+	articlesListItems, err = populateArticleListItems(els, website)
+	if err != nil {
+		return err
+	}
 
-		//check for relevant words on the title itself
+	log.Printf("Looking at %d articles on %s\n", len(articlesListItems), website.Name)
+
+	//iterate over the articles and analyze if it contains relevant words
+	for _, articleListItem := range articlesListItems {
+
+		//iterate over the words and check if the article contains them
 		for _, word := range words {
-			// check if article title contains relevant word
-			if strings.Contains(articleTitle, word) {
+			if strings.Contains(articleListItem.Title, word) {
 				// if it does, log it
-				log.Printf("Article %s contains relevant word %s\n", articleTitle, word)
+				log.Printf("Article %s contains relevant word %s\n", articleListItem.Title, word)
 
-				// analyze the article further
-				existant, added, err := analyzeArticle(e, browser, website, articleTitle)
+				// if the article is already existant, continue the loop
+				if isExistant(articleListItem.Link) {
+					log.Printf("Article %s is already on database.\n", articleListItem.Title)
+					break
+				}
+
+				// analyze article further
+				added, err := analyzeArticle(articleListItem, browser, website)
 				if err != nil {
 					return err
 				}
-				if existant || added {
-					log.Printf("Article %s is already existant or added\n", articleTitle)
-					// if the article is already existant or added, continue the loop
-					continue articlesLoop
+
+				// if the article was added, continue the loop
+				if added {
+					log.Printf("Article %s is already existant or was added successfully.\n", articleListItem.Title)
+					break
 				}
-				break
 			}
 		}
 	}
@@ -213,53 +223,31 @@ articlesLoop:
 }
 
 // analyze article
-func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website, title string) (existent bool, added bool, err error) {
+func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser, website types.Website) (added bool, err error) {
 	var article types.Article
-	//get anchor element and then url of the article
-	urlElement, err := e.ElementX(website.AnchorElement)
-	if err != nil {
-		return false, false, err
-	}
-	url := urlElement.MustProperty("href").String()
-	log.Printf("Analyzing article %s, got the url: %s, checking if it's already saved.\n", title, url)
 
-	// if its already in the array, continue the loop
-	if isExistant(url) {
-		return true, false, nil
-	}
+	log.Printf("Analyzing article %s, got the url: %s, checking if it's already saved.\n", articleListItem.Title, articleListItem.Link)
 
-	//get the article image url if provided
-	if website.ImageElement != "" {
-		e.ScrollIntoView()
-		time.Sleep(1 * time.Second)
-		imageElement, err := e.Timeout(10 * time.Second).ElementX(website.ImageElement)
-		if err != nil {
-			article.Image = "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=growtika-nGoCBxiaRO0-unsplash.jpg&w=640"
-		} else {
-			article.Image = imageElement.MustProperty("src").String()
-		}
+	article.Image = articleListItem.Image
+	article.Link = articleListItem.Link
+	article.Title = articleListItem.Title
 
-	}
-
-	article.Link = url
-	article.Title = title
-
-	log.Printf("Article %s is not existant, navigating to the article page.\n", title)
+	log.Printf("Article %s is not existant, navigating to the article page.\n", article.Title)
 
 	//navigate to the article page on a new tab
-	page, err := browser.Page(proto.TargetCreateTarget{URL: url})
+	page, err := browser.Page(proto.TargetCreateTarget{URL: article.Link})
 	if err != nil {
-		return false, false, err
+		return false, err
 	}
 	defer page.Close()
 
 	//scroll through the article a little bit
 	page.Mouse.Scroll(0, 10000, 100)
 
-	//wait for 10 seconds for the article page to load
+	//get the content of the article
 	contentElements, err := page.Timeout(10 * time.Second).ElementsX(website.ContentElement)
 	if err != nil {
-		return false, false, err
+		return false, err
 	}
 
 	// iterate over the content elements and concatenate the text
@@ -272,12 +260,13 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 
 	// get the compiled content string
 	article.Content = content.String()
-	log.Printf("Got the content of the article %s\n", title)
+	log.Printf("Got the content of the article %s\n", article.Title)
 
 	//summarize the article
 	summary, err := ai.Summarize(article.Content)
 	if err != nil {
-		return false, false, err
+		log.Println(err.Error())
+		return false, err
 	}
 	article.Summary = summary
 
@@ -285,7 +274,8 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 	if website.SubtitleElement != "" {
 		subtitleElement, err := page.ElementX(website.SubtitleElement)
 		if err != nil {
-			return false, false, err
+			log.Println(err.Error())
+			return false, err
 		}
 		article.Content = subtitleElement.MustText() + "\n" + article.Content
 	}
@@ -294,25 +284,78 @@ func analyzeArticle(e *rod.Element, browser *rod.Browser, website types.Website,
 	if website.DateElement != "" {
 		dateElement, err := page.ElementX(website.DateElement)
 		if err != nil {
-			return false, false, err
+			log.Println(err.Error())
+			return false, err
 		}
 		datetime := *dateElement.MustAttribute("datetime")
 		t, err := time.Parse(time.RFC3339, datetime)
 		if err != nil {
-			return false, false, err
+			log.Println(err.Error())
+			return false, err
 		}
 		article.Timestamp = t.Unix()
 	}
 
-	log.Printf("Adding the article %s to the database\n", title)
+	log.Printf("Adding the article %s to the database\n", article.Title)
 
 	article.Source = website.Name
 
 	//add article to the database and on the program struct array
 	err = addArticle(article)
 	if err != nil {
-		return false, false, err
+		log.Println(err.Error())
+		return false, err
 	}
 
-	return false, true, nil
+	return true, nil
+}
+
+// try to find on the system where chromium is by using which command
+func getChromiumPath() string {
+	cmd := exec.Command("which", "chromium")
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	log.Printf("Chromium path: %s\n", string(out))
+	// remove the newline character from the output
+	out = out[:len(out)-1]
+	return string(out)
+}
+
+func populateArticleListItems(els rod.Elements, website types.Website) ([]types.ArticlesListItem, error) {
+	var articlesListItems []types.ArticlesListItem
+
+	// loop through the elements found, and navigate to each relevant article that is not existant, then do the necessary tasks
+	for _, e := range els {
+		var articleListItem types.ArticlesListItem
+
+		//get the title of the article
+		articleTitleElement, err := e.Timeout(2 * time.Second).ElementX(website.TitleElement)
+		if err != nil {
+			return nil, err
+		}
+		articleListItem.Title = articleTitleElement.MustText()
+
+		//get the url of the article
+		urlElement, err := e.Timeout(2 * time.Second).ElementX(website.AnchorElement)
+		if err != nil {
+			return nil, err
+		}
+		articleListItem.Link = urlElement.Timeout(2 * time.Second).MustProperty("href").String()
+
+		//get the image of the article
+		if website.ImageElement != "" {
+			imageElement, err := e.Timeout(10 * time.Second).ElementX(website.ImageElement)
+			if err != nil {
+				articleListItem.Image = "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=growtika-nGoCBxiaRO0-unsplash.jpg&w=640"
+			} else {
+				articleListItem.Image = imageElement.Timeout(2 * time.Second).MustProperty("src").String()
+			}
+		}
+
+		articlesListItems = append(articlesListItems, articleListItem)
+
+	}
+	return articlesListItems, nil
 }

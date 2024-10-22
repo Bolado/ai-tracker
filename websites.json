@@ -5,7 +5,7 @@
         "mainElement": "//div[contains(@data-in-view,'Summary')]",
         "titleElement": ".//h3",
         "anchorElement": ".//a[@href]",
-        "imageElement": ".//img",
+        "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
         "subtitleElement": "//div[contains(@data-testid,'ContentHeaderAccreditation')]//div",
         "contentElement": "//div[@data-testid='ArticlePageChunks']//p[contains(@class,'paywall') and not(@class='')]",
         "dateElement": "//time"
@@ -16,7 +16,7 @@
         "mainElement": "//div[contains(@class,'duet--content-cards--content-card') and .//div[@class='flex items-center']]",
         "titleElement": ".//h2/a",
         "anchorElement": ".//h2/a",
-        "imageElement": ".//img[contains(@src,'.jpg') or contains(@src,'.png') or contains(@src,'.jpeg')]",
+        "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
         "subtitleElement": "//h2[preceding-sibling::div[preceding-sibling::ul] or parent::span]",
         "contentElement": "//div[@class='duet--article--article-body-component']",
         "dateElement": "//article//time"

@@ -13,6 +13,8 @@ import (
 )
 
 func main() {
+	// change logger so it prints more information when logging
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	//get env variables
 	godotenv.Load()
