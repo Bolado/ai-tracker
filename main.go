@@ -41,8 +41,10 @@ func main() {
 				log.Fatalf("Failed to start watcher: %v\n", err)
 			}
 			if interval == 0 {
+				log.Println("Watcher will sleep for 15 minutes")
 				time.Sleep(15 * time.Minute)
 			} else {
+				log.Printf("Watcher will sleep for %d minutes\n", interval)
 				time.Sleep(time.Duration(interval) * time.Minute)
 			}
 		}

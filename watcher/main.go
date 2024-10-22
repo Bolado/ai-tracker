@@ -47,11 +47,12 @@ func StartWatcher() error {
 
 	// Iterate over each website and start watching it
 	for _, website := range websites {
-		log.Printf("Watching website %s\n", website.Name)
+		log.Printf("Checking website %s\n", website.Name)
 		err := watchWebsite(website, browser)
 		if err != nil {
 			log.Printf("Error eccured while watching website %s: %v\n", website.Name, err)
 		}
+		log.Printf("Finished checking website %s\n", website.Name)
 	}
 
 	return nil
