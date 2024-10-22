@@ -12,11 +12,10 @@ The project is delivered as a Docker container, which the image is made through 
 
 ## Goals
 
-- [ ] Golang Backend
-- [ ] Scraping
-- [ ] HTMX Frontend
-- [ ] TailwindCSS
-- [ ] AI Summarization
+- [x] Golang Backend
+- [x] Scraping
+- [x] TailwindCSS
+- [x] AI Summarization
 - [ ] Docker
 - [ ] GitHub Actions
 - [ ] RSS Feed
