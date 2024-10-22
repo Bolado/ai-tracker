@@ -94,11 +94,13 @@ func startRod() (*rod.Browser, error) {
 	// Create a new launcher instance
 	launcher := launcher.New()
 
-	// set the browser path for nixos using which
-	launcher.Bin(getChromiumPath())
+	// Get the path to the Chromium binary if running on NixOS
+	if isNixOS() {
+		launcher.Bin(getChromiumPath())
+	}
 
 	// Set the launcher to run in headless mode
-	launcher.Headless(false)
+	launcher.Headless(true)
 
 	// Launch the browser and get the URL
 	url, err := launcher.Launch()
@@ -117,6 +119,12 @@ func startRod() (*rod.Browser, error) {
 
 	// Return the browser instance
 	return browser, nil
+}
+
+func isNixOS() bool {
+	cmd := exec.Command("nixos-version")
+	err := cmd.Run()
+	return err == nil
 }
 
 // read websites from ./websites.json and put into a []types.Website
@@ -317,7 +325,7 @@ func getChromiumPath() string {
 	if err != nil {
 		return ""
 	}
-	log.Printf("Chromium path: %s\n", string(out))
+
 	// remove the newline character from the output
 	out = out[:len(out)-1]
 	return string(out)
