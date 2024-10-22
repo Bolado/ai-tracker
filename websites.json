@@ -1,6 +1,6 @@
 [
     {
-        "name": "wired",
+        "name": "Wired",
         "url": "https://www.wired.com/most-recent/",
         "mainElement": "//div[contains(@data-in-view,'Summary')]",
         "titleElement": ".//h3",
@@ -11,7 +11,7 @@
         "dateElement": "//time"
     },
     {
-        "name": "the-verge",
+        "name": "The Verge",
         "url": "https://www.theverge.com/ai-artificial-intelligence",
         "mainElement": "//div[contains(@class,'duet--content-cards--content-card') and .//div[@class='flex items-center']]",
         "titleElement": ".//h2/a",

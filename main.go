@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"strconv"
@@ -11,6 +12,16 @@ import (
 	"github.com/Bolado/ai-tracker/watcher"
 	"github.com/joho/godotenv"
 )
+
+var (
+	disableWatcher bool
+)
+
+func init() {
+	// parse command line flags
+	flag.BoolVar(&disableWatcher, "disable-watcher", false, "flag to disable the watcher, intended for web server only")
+	flag.Parse()
+}
 
 func main() {
 	// change logger so it prints more information when logging
@@ -34,22 +45,24 @@ func main() {
 	}
 	log.Println("Articles loaded")
 
-	// start the watcher
-	go func() {
-		for {
-			if err := watcher.StartWatcher(); err != nil {
-				log.Fatalf("Failed to start watcher: %v\n", err)
+	if !disableWatcher {
+		// start the watcher
+		go func() {
+			for {
+				if err := watcher.StartWatcher(); err != nil {
+					log.Fatalf("Failed to start watcher: %v\n", err)
+				}
+				if interval == 0 {
+					log.Println("Watcher will sleep for 15 minutes")
+					time.Sleep(15 * time.Minute)
+				} else {
+					log.Printf("Watcher will sleep for %d minutes\n", interval)
+					time.Sleep(time.Duration(interval) * time.Minute)
+				}
 			}
-			if interval == 0 {
-				log.Println("Watcher will sleep for 15 minutes")
-				time.Sleep(15 * time.Minute)
-			} else {
-				log.Printf("Watcher will sleep for %d minutes\n", interval)
-				time.Sleep(time.Duration(interval) * time.Minute)
-			}
-		}
-	}()
-	log.Println("Watcher started")
+		}()
+		log.Println("Watcher started")
+	}
 
 	// start the router and listen for requests
 	if err := router.StartRouter(); err != nil {
