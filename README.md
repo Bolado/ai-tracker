@@ -16,6 +16,7 @@ The project is delivered as a Docker container, which the image is made through 
 - [x] Scraping
 - [x] TailwindCSS
 - [x] AI Summarization
+- [ ] Content Pagination
 - [ ] Docker
 - [ ] GitHub Actions
 - [ ] RSS Feed
