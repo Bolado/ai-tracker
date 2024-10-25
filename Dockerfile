@@ -16,7 +16,7 @@ RUN go install github.com/a-h/templ/cmd/templ@latest
 RUN templ generate
 
 # Build the application
-RUN GOOS=linux go build -o ai-tracker
+RUN CGO_ENABLED=0 GOOS=linux go build -o ai-tracker
 
 # Use a minimal base image for the final image
 FROM alpine:latest
