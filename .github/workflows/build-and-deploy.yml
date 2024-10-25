@@ -13,29 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.22'
-
-      - name: Download Go modules
-        run: go mod download
-
-      - name: Install templ
-        run: go install github.com/a-h/templ/cmd/templ@latest
-
-      - name: Generate templates
-        run: templ generate
-
-      - name: Build application
-        run: go build -o ./dist/ai-tracker
-
-      - name: Create destination directory
-        run: mkdir -p ./dist/website/static
-
-      - name: Copy static contents
-        run: cp -R website/static/* ./dist/website/static
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
