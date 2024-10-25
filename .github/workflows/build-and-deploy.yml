@@ -21,6 +21,9 @@ jobs:
       - name: Download Go modules
         run: go mod download
 
+      - name: Install templ
+        run: go install github.com/a-h/templ/cmd/templ@latest
+
       - name: Generate templates
         run: templ generate
 
