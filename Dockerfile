@@ -19,7 +19,7 @@ RUN templ generate
 RUN CGO_ENABLED=0 GOOS=linux go build -o ai-tracker
 
 # Use ubuntu as the base image due chrome dependencies
-FROM ubuntu:20.04
+FROM alpine:latest
 
 # Set the working directory inside the container
 WORKDIR /root/
@@ -27,6 +27,9 @@ WORKDIR /root/
 # Copy the built Go application and necessary files from the builder stage
 COPY --from=builder /app/ai-tracker /app/websites.json /app/words.json ./
 COPY --from=builder /app/website/static ./website/static
+
+# Install chromium
+RUN apk add chromium
 
 # Expose the application port
 EXPOSE 8080
