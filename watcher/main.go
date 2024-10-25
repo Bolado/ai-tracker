@@ -100,8 +100,13 @@ func startRod() (*rod.Browser, error) {
 		launcher.Bin(getChromiumPath())
 	}
 
+	// Check if OS is Alpine Linux
+	if _, err := os.Stat("/etc/alpine-release"); err == nil {
+		launcher.Bin("/usr/bin/chromium-browser")
+	}
+
 	// Set the launcher to run in headless mode
-	launcher.Headless(true)
+	launcher.Headless(true).NoSandbox(true)
 
 	// Launch the browser and get the URL
 	url, err := launcher.Launch()

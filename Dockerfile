@@ -29,7 +29,7 @@ COPY --from=builder /app/ai-tracker /app/websites.json /app/words.json ./
 COPY --from=builder /app/website/static ./website/static
 
 # Install chromium
-RUN apk add chromium
+RUN apk --no-cache add chromium
 
 # Expose the application port
 EXPOSE 8080
