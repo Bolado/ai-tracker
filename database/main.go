@@ -2,7 +2,9 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -21,8 +23,11 @@ func StartDatabase() error {
 }
 
 func connectDatabase() error {
-	// connection string for the mongodb container
-	mongoURI := "mongodb://admin:password@localhost:27017/?authSource=admin"
+	//get the connection string from the environment
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		return fmt.Errorf("MONGO_URI is not set")
+	}
 
 	// Set client options
 	clientOptions := options.Client().ApplyURI(mongoURI)
