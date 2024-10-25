@@ -1,10 +1,10 @@
 # AI Tracker
 
-This repository contains the code for the "AI Tracker" project.
+This project aims to give users a quick, easy way to get the gist of news articles without needing to read the full text. For those interested in diving deeper, there’s also an option to navigate to the original article.
 
-The goal of this project is to provide users with a quick way to get the gist of a news article without having to read the entire thing while also providing a link to the original article for those who want to read more.
+The app brings together a range of tools—like Go, HTMX, TailwindCSS, Docker, and OpenAI’s API—to make it all happen.
 
-The application will use a mix of tools to achieve this goal, examples are Go, HTMX, TailwindCSS, Docker and OpenAI's API.
+**The project can be found running [in here](https://aitracker.news).**
 
 ## Delivery
 
@@ -12,12 +12,18 @@ The project is delivered as a Docker container, which the image is made through 
 
 ## Goals
 
-- [x] Golang Backend
-- [x] Scraping
-- [x] TailwindCSS
-- [x] AI Summarization
-- [ ] Content Pagination
-- [ ] Docker
-- [ ] GitHub Actions
-- [ ] RSS Feed
-- [ ] Webhooks
+| Feature             | Status |
+|---------------------|--------|
+| Golang Backend      | ✅     |
+| Scraping            | ✅     |
+| TailwindCSS         | ✅     |
+| AI Summarization    | ✅     |
+| Docker              | ✅     |
+| GitHub Actions      | ✅    |
+| Content Pagination  | ⏳     |
+| RSS Feed            | ⏳     |
+| Webhooks            | ⏳     |
+
+## Links
+
+[Source Code](https://github.com/Bolado/ai-tracker)
