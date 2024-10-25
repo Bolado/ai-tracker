@@ -18,8 +18,8 @@ RUN templ generate
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -o ai-tracker
 
-# Use a minimal base image for the final image
-FROM alpine:latest
+# Use ubuntu as the base image due chrome dependencies
+FROM ubuntu:20.04
 
 # Set the working directory inside the container
 WORKDIR /root/
