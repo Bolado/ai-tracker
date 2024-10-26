@@ -4,3 +4,8 @@
 body {
     font-family: 'Roboto', sans-serif;
 }
+
+a {
+    user-select: text;
+    -webkit-user-drag: none;
+}

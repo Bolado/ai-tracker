@@ -44,11 +44,16 @@ templ Index(page int) {
 
 templ articles(page int) {
 	for _, article := range GetPagedArticles(page) {
-		<article title={ article.Title } class="m-4 bg-neutral-300 dark:bg-neutral-600 hover:drop-shadow-[0_0_0.5rem_rgba(20,170,200,0.25)] rounded-md">
-			<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer" class="flex flex-col md:flex-row p-6">
+		<article title={ article.Title } class="m-4 bg-cyan-600/10 hover:drop-shadow-[0_0_0.5rem_rgba(20,170,200,0.25)] rounded-md">
+			<div class="flex flex-col md:flex-row p-6">
 				<div class="flex justify-between flex-col min-w-[60%] pr-4">
-					<h2 class="text-2xl text-cyan-600 dark:text-cyan-300 font-bold">{ article.Title }</h2>
-					<p class="py-2 text-lg">{ article.Summary }</p>
+					<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer">
+						<h2 class="text-2xl text-cyan-600 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">{ article.Title }</h2>
+					</a>
+					<p class="py-2 text-lg">
+						{ article.Summary }
+					</p>
+					<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer" class="text-cyan-600 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">Read more</a>
 					<div class="text-cyan-600 dark:text-cyan-300 font-bold">
 						<p class="inline">{ article.Source } - </p>
 						<time class="inline" datetime={ time.Unix(article.Timestamp, 0).Format("2006-01-02T15:04:05Z07:00") }>
@@ -57,7 +62,7 @@ templ articles(page int) {
 					</div>
 				</div>
 				<img alt={ article.Title } src={ article.Image } class="mt-4 md:mt-0 md:w-2/5 object-contain rounded-md"/>
-			</a>
+			</div>
 		</article>
 	}
 }
