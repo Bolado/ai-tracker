@@ -30,15 +30,16 @@ func StartWatcher() error {
 	if err != nil {
 		return err
 	}
+	defer browser.Close()
 
 	// Read the list of websites from a JSON file
-	websites, err := readWebsitesJSON()
+	websites, err := readJSON[[]types.Website]("./websites.json")
 	if err != nil {
 		return err
 	}
 
 	// Read the list of words to monitor from a JSON file
-	words, err = readWordsJSON()
+	words, err = readJSON[[]string]("./words.json")
 	if err != nil {
 		return err
 	}
@@ -133,35 +134,19 @@ func isNixOS() bool {
 	return err == nil
 }
 
-// read websites from ./websites.json and put into a []types.Website
-func readWebsitesJSON() ([]types.Website, error) {
-	var websites []types.Website
-	file, err := os.ReadFile("./websites.json")
+func readJSON[T any](filePath string) (T, error) {
+	var data T
+	file, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, err
+		return data, err
 	}
 
-	err = json.Unmarshal(file, &websites)
+	err = json.Unmarshal(file, &data)
 	if err != nil {
-		return nil, err
+		return data, err
 	}
 
-	return websites, nil
-}
-
-// read the words from ./words.json and put into a []string
-func readWordsJSON() ([]string, error) {
-	var words []string
-	file, err := os.ReadFile("./words.json")
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(file, &words)
-	if err != nil {
-		return nil, err
-	}
-	return words, nil
+	return data, nil
 }
 
 // watch the websites provided for new articles, summarizing and adding only the non existant ones to the database and the struct array
