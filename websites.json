@@ -8,7 +8,7 @@
         "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
         "subtitleElement": "//div[contains(@data-testid,'ContentHeaderAccreditation')]//div",
         "contentElement": "//div[@data-testid='ArticlePageChunks']//p[contains(@class,'paywall') and not(@class='')]",
-        "dateElement": "//time"
+        "dateElement": "//time[@datetime]"
     },
     {
         "name": "The Verge",
@@ -19,7 +19,7 @@
         "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
         "subtitleElement": "//h2[preceding-sibling::div[preceding-sibling::ul] or parent::span]",
         "contentElement": "//div[@class='duet--article--article-body-component']",
-        "dateElement": "//article//time"
+        "dateElement": "//article//time[@datetime]"
     },
     {
         "name": "TechCrunch",
@@ -30,7 +30,7 @@
         "imageElement": ".//img",
         "subtitleElement": "",
         "contentElement": "//main//p[contains(@class,'wp-block-paragraph')]",
-        "dateElement": "//div[contains(@class,'article-hero') or contains(@class,'post-date')]//time"
+        "dateElement": "//div[contains(@class,'article-hero') or contains(@class,'post-date')]//time[@datetime]"
     },
     {
         "name": "The Guardian",
@@ -64,5 +64,16 @@
         "subtitleElement": "//div[contains(@class,'contentArticleHeader__deck')]//p",
         "contentElement": "//div[contains(@class,'gutenbergContent__content')]//p",
         "dateElement": "//div[contains(@class,'contentArticleHeader__publishDate')]"
+    },
+    {
+        "name": "BBC",
+        "url": "https://www.bbc.com/innovation/artificial-intelligence",
+        "mainElement": "//div[contains(@data-testid,'nevada')]//div[@data-testid='edinburgh-card']",
+        "titleElement": ".//h2",
+        "anchorElement": ".//a",
+        "imageElement": ".//img",
+        "subtitleElement": "",
+        "contentElement": "//div[@data-component='text-block']//p",
+        "dateElement": "//time"
     }
 ]

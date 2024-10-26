@@ -2,11 +2,8 @@ package watcher
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"sort"
 	"strings"
 	"time"
@@ -60,6 +57,7 @@ func StartWatcher() error {
 	return nil
 }
 
+// LoadArticles loads the articles from the database.
 func LoadArticles() error {
 	var err error
 	Articles, err = database.GetArticles()
@@ -69,15 +67,7 @@ func LoadArticles() error {
 	return nil
 }
 
-func isExistant(link string) bool {
-	for _, a := range Articles {
-		if a.Link == link {
-			return true
-		}
-	}
-	return false
-}
-
+// addArticle adds an article to the database and the struct array.
 func addArticle(article types.Article) error {
 	log.Printf("Adding article %s\n", article.Title)
 
@@ -93,6 +83,7 @@ func addArticle(article types.Article) error {
 	return nil
 }
 
+// startRod starts the Rod browser instance.
 func startRod() (*rod.Browser, error) {
 	// Create a new launcher instance
 	launcher := launcher.New()
@@ -127,27 +118,6 @@ func startRod() (*rod.Browser, error) {
 
 	// Return the browser instance
 	return browser, nil
-}
-
-func isNixOS() bool {
-	cmd := exec.Command("nixos-version")
-	err := cmd.Run()
-	return err == nil
-}
-
-func readJSON[T any](filePath string) (T, error) {
-	var data T
-	file, err := os.ReadFile(filePath)
-	if err != nil {
-		return data, err
-	}
-
-	err = json.Unmarshal(file, &data)
-	if err != nil {
-		return data, err
-	}
-
-	return data, nil
 }
 
 // watch the websites provided for new articles, summarizing and adding only the non existant ones to the database and the struct array
@@ -287,7 +257,7 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 			log.Println(err.Error())
 			return false, err
 		}
-		if !strings.Contains(website.DateElement, "time") {
+		if !strings.Contains(website.DateElement, "datetime") {
 			article.Timestamp, err = parseTimeAndConvertToUnix(dateElement.MustText())
 			if err != nil {
 				log.Println(err.Error())
@@ -319,19 +289,7 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 	return true, nil
 }
 
-// try to find on the system where chromium is by using which command
-func getChromiumPath() string {
-	cmd := exec.Command("which", "chromium")
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-
-	// remove the newline character from the output
-	out = out[:len(out)-1]
-	return string(out)
-}
-
+// populate the articles array with the articles found on the website, which contains the title, link and image
 func populateArticleListItems(els rod.Elements, website types.Website) ([]types.ArticlesListItem, error) {
 	var articlesListItems []types.ArticlesListItem
 
@@ -367,23 +325,4 @@ func populateArticleListItems(els rod.Elements, website types.Website) ([]types.
 
 	}
 	return articlesListItems, nil
-}
-
-func parseTimeAndConvertToUnix(timeString string) (int64, error) {
-	formats := []string{
-		time.RFC3339,
-		"2006-01-02 15:04:05",
-		"2006/01/02 15:04:05",
-		"02 Jan 2006 15:04:05",
-		"01/02/2006 03:04:05 PM",
-		"Mon 02 Jan 2006 15.04 MST",
-		"January 2, 2006",
-	}
-
-	for _, format := range formats {
-		if t, err := time.Parse(format, timeString); err == nil {
-			return t.Unix(), nil
-		}
-	}
-	return 0, fmt.Errorf("unsupported time format")
 }
