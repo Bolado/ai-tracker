@@ -9,5 +9,5 @@ func StartRouter() error {
 
 	initializeGets(r)
 
-	return r.Run("localhost:8080")
+	return r.Run(":8080")
 }
