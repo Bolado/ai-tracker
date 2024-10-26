@@ -3,6 +3,7 @@ package watcher
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -261,14 +262,6 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 	article.Content = content.String()
 	log.Printf("Got the content of the article %s\n", article.Title)
 
-	//summarize the article
-	summary, err := ai.Summarize(article.Content)
-	if err != nil {
-		log.Println(err.Error())
-		return false, err
-	}
-	article.Summary = summary
-
 	//get subtitle if there is
 	if website.SubtitleElement != "" {
 		subtitleElement, err := page.ElementX(website.SubtitleElement)
@@ -279,20 +272,37 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 		article.Content = subtitleElement.MustText() + "\n" + article.Content
 	}
 
+	//summarize the article
+	summary, err := ai.Summarize(article.Content)
+	if err != nil {
+		log.Println(err.Error())
+		return false, err
+	}
+	article.Summary = summary
+
 	//get date if there is
 	if website.DateElement != "" {
-		dateElement, err := page.ElementX(website.DateElement)
+		dateElement, err := page.Timeout(20 * time.Second).ElementX(website.DateElement)
 		if err != nil {
 			log.Println(err.Error())
 			return false, err
 		}
-		datetime := *dateElement.MustAttribute("datetime")
-		t, err := time.Parse(time.RFC3339, datetime)
-		if err != nil {
-			log.Println(err.Error())
-			return false, err
+		if !strings.Contains(website.DateElement, "time") {
+			article.Timestamp, err = parseTimeAndConvertToUnix(dateElement.MustText())
+			if err != nil {
+				log.Println(err.Error())
+				return false, err
+			}
+		} else {
+			datetime := dateElement.MustAttribute("datetime")
+			t, err := time.Parse(time.RFC3339, *datetime)
+			if err != nil {
+				log.Println(err.Error())
+				return false, err
+			}
+			article.Timestamp = t.Unix()
 		}
-		article.Timestamp = t.Unix()
+
 	}
 
 	log.Printf("Adding the article %s to the database\n", article.Title)
@@ -357,4 +367,23 @@ func populateArticleListItems(els rod.Elements, website types.Website) ([]types.
 
 	}
 	return articlesListItems, nil
+}
+
+func parseTimeAndConvertToUnix(timeString string) (int64, error) {
+	formats := []string{
+		time.RFC3339,
+		"2006-01-02 15:04:05",
+		"2006/01/02 15:04:05",
+		"02 Jan 2006 15:04:05",
+		"01/02/2006 03:04:05 PM",
+		"Mon 02 Jan 2006 15.04 MST",
+		"January 2, 2006",
+	}
+
+	for _, format := range formats {
+		if t, err := time.Parse(format, timeString); err == nil {
+			return t.Unix(), nil
+		}
+	}
+	return 0, fmt.Errorf("unsupported time format")
 }

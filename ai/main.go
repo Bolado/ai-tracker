@@ -3,6 +3,7 @@ package ai
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -17,8 +18,12 @@ func Summarize(text string) (string, error) {
 		text = text[:50000]
 	}
 
+	// Create a context with a 1-minute timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
 	resp, err := client.CreateChatCompletion(
-		context.Background(),
+		ctx,
 		openai.ChatCompletionRequest{
 			Model: openai.GPT3Dot5Turbo,
 			Messages: []openai.ChatCompletionMessage{

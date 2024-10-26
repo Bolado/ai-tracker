@@ -20,5 +20,49 @@
         "subtitleElement": "//h2[preceding-sibling::div[preceding-sibling::ul] or parent::span]",
         "contentElement": "//div[@class='duet--article--article-body-component']",
         "dateElement": "//article//time"
+    },
+    {
+        "name": "TechCrunch",
+        "url": "https://techcrunch.com/category/artificial-intelligence/",
+        "mainElement": "//li[contains(@class,'type-post') and descendant::img]",
+        "titleElement": ".//h3/a",
+        "anchorElement": ".//h3/a",
+        "imageElement": ".//img",
+        "subtitleElement": "",
+        "contentElement": "//main//p[contains(@class,'wp-block-paragraph')]",
+        "dateElement": "//div[contains(@class,'article-hero') or contains(@class,'post-date')]//time"
+    },
+    {
+        "name": "The Guardian",
+        "url": "https://www.theguardian.com/technology",
+        "mainElement": "//div[contains(@id,'container-technology')]//li",
+        "titleElement": ".//h3//span",
+        "anchorElement": ".//a",
+        "imageElement": ".//img",
+        "subtitleElement": "//article//div[contains(@style,'stand')]//p[1]",
+        "contentElement": "//article//div[contains(@class,'article')]/p",
+        "dateElement": "//details//span"
+    },
+    {
+        "name": "Reuters",
+        "url": "https://www.reuters.com/technology/artificial-intelligence/",
+        "mainElement": "//div[@data-testid='FeedContent']//li[@data-testid='FeedListItem']",
+        "titleElement": ".//span[@data-testid='Heading']",
+        "anchorElement": ".//a[@data-testid='Title']",
+        "imageElement": ".//img",
+        "subtitleElement": "",
+        "contentElement": "//div[contains(@data-testid,'paragraph')]",
+        "dateElement": "//time[@data-testid='Body']"
+    },
+    {
+        "name": "MIT Technology Review",
+        "url": "https://www.technologyreview.com/topic/artificial-intelligence/",
+        "mainElement": "//div[contains(@class,'homepageStoryCard__wrapper') and descendant::img]",
+        "titleElement": ".//h3",
+        "anchorElement": ".//a[descendant::h3]",
+        "imageElement": ".//a[not(contains(@class,'sponsored'))]//img",
+        "subtitleElement": "//div[contains(@class,'contentArticleHeader__deck')]//p",
+        "contentElement": "//div[contains(@class,'gutenbergContent__content')]//p",
+        "dateElement": "//div[contains(@class,'contentArticleHeader__publishDate')]"
     }
 ]
