@@ -36,7 +36,7 @@ templ Index(page int) {
 				@nav(page)
 			</main>
 			<footer class="flex place-content-center">
-				<p class="py-4">Made with ❤️ by <a class="text-cyan-600 dark:text-cyan-300" href="https://github.com/bolado">igor</a></p>
+				<p class="py-4">Made with ❤️ by <a class="text-cyan-900 dark:text-cyan-300" href="https://github.com/bolado">igor</a></p>
 			</footer>
 		</body>
 	</html>
@@ -48,20 +48,22 @@ templ articles(page int) {
 			<div class="flex flex-col md:flex-row p-6">
 				<div class="flex justify-between flex-col min-w-[60%] pr-4">
 					<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer">
-						<h2 class="text-2xl text-cyan-600 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">{ article.Title }</h2>
+						<h2 class="text-2xl text-cyan-900 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">{ article.Title }</h2>
 					</a>
 					<p class="py-2 text-lg">
 						{ article.Summary }
 					</p>
-					<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer" class="text-cyan-600 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">Read more</a>
-					<div class="text-cyan-600 dark:text-cyan-300 font-bold">
-						<p class="inline">{ article.Source } - </p>
+					<div class="text-cyan-900 dark:text-cyan-300 font-bold flex flex-col md:flex-row gap-2">
+						<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer" class="text-cyan-900 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">Read more</a>
+						<div class="grow"></div>
 						<time class="inline" datetime={ time.Unix(article.Timestamp, 0).Format("2006-01-02T15:04:05Z07:00") }>
-							{ time.Unix(article.Timestamp, 0).Format("Jan 2 2006 15:04") }
+							<p class="inline">{ article.Source } | { time.Unix(article.Timestamp, 0).Format("Jan 2 2006 15:04") }</p>
 						</time>
 					</div>
 				</div>
-				<img alt={ article.Title } src={ article.Image } class="mt-4 md:mt-0 md:w-2/5 object-contain rounded-md min-w-[40%]"/>
+				<div class="min-w-[40%] max-h-full md:overflow-hidden md:relative">
+					<img alt={ article.Title } src={ article.Image } class="md:absolute inset-0 w-full h-full object-cover rounded-md"/>
+				</div>
 			</div>
 		</article>
 	}
