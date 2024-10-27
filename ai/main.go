@@ -33,7 +33,7 @@ func Summarize(text string) (string, error) {
 				},
 				{
 					Role:    openai.ChatMessageRoleSystem,
-					Content: "Summarize the following article using a maximum of 240 characters.",
+					Content: "Summarize the following news article, try to keep the summary between 200 and 240 characters.",
 				},
 			},
 		},
