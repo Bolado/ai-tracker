@@ -2,10 +2,8 @@ package watcher
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"os"
-	"os/exec"
 	"sort"
 	"strings"
 	"time"
@@ -59,6 +57,7 @@ func StartWatcher() error {
 	return nil
 }
 
+// LoadArticles loads the articles from the database.
 func LoadArticles() error {
 	var err error
 	Articles, err = database.GetArticles()
@@ -68,15 +67,7 @@ func LoadArticles() error {
 	return nil
 }
 
-func isExistant(link string) bool {
-	for _, a := range Articles {
-		if a.Link == link {
-			return true
-		}
-	}
-	return false
-}
-
+// addArticle adds an article to the database and the struct array.
 func addArticle(article types.Article) error {
 	log.Printf("Adding article %s\n", article.Title)
 
@@ -92,6 +83,7 @@ func addArticle(article types.Article) error {
 	return nil
 }
 
+// startRod starts the Rod browser instance.
 func startRod() (*rod.Browser, error) {
 	// Create a new launcher instance
 	launcher := launcher.New()
@@ -126,27 +118,6 @@ func startRod() (*rod.Browser, error) {
 
 	// Return the browser instance
 	return browser, nil
-}
-
-func isNixOS() bool {
-	cmd := exec.Command("nixos-version")
-	err := cmd.Run()
-	return err == nil
-}
-
-func readJSON[T any](filePath string) (T, error) {
-	var data T
-	file, err := os.ReadFile(filePath)
-	if err != nil {
-		return data, err
-	}
-
-	err = json.Unmarshal(file, &data)
-	if err != nil {
-		return data, err
-	}
-
-	return data, nil
 }
 
 // watch the websites provided for new articles, summarizing and adding only the non existant ones to the database and the struct array
@@ -261,14 +232,6 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 	article.Content = content.String()
 	log.Printf("Got the content of the article %s\n", article.Title)
 
-	//summarize the article
-	summary, err := ai.Summarize(article.Content)
-	if err != nil {
-		log.Println(err.Error())
-		return false, err
-	}
-	article.Summary = summary
-
 	//get subtitle if there is
 	if website.SubtitleElement != "" {
 		subtitleElement, err := page.ElementX(website.SubtitleElement)
@@ -279,20 +242,37 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 		article.Content = subtitleElement.MustText() + "\n" + article.Content
 	}
 
+	//summarize the article
+	summary, err := ai.Summarize(article.Content)
+	if err != nil {
+		log.Println(err.Error())
+		return false, err
+	}
+	article.Summary = summary
+
 	//get date if there is
 	if website.DateElement != "" {
-		dateElement, err := page.ElementX(website.DateElement)
+		dateElement, err := page.Timeout(20 * time.Second).ElementX(website.DateElement)
 		if err != nil {
 			log.Println(err.Error())
 			return false, err
 		}
-		datetime := *dateElement.MustAttribute("datetime")
-		t, err := time.Parse(time.RFC3339, datetime)
-		if err != nil {
-			log.Println(err.Error())
-			return false, err
+		if !strings.Contains(website.DateElement, "datetime") {
+			article.Timestamp, err = parseTimeAndConvertToUnix(dateElement.MustText())
+			if err != nil {
+				log.Println(err.Error())
+				return false, err
+			}
+		} else {
+			datetime := dateElement.MustAttribute("datetime")
+			t, err := time.Parse(time.RFC3339, *datetime)
+			if err != nil {
+				log.Println(err.Error())
+				return false, err
+			}
+			article.Timestamp = t.Unix()
 		}
-		article.Timestamp = t.Unix()
+
 	}
 
 	log.Printf("Adding the article %s to the database\n", article.Title)
@@ -309,19 +289,7 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 	return true, nil
 }
 
-// try to find on the system where chromium is by using which command
-func getChromiumPath() string {
-	cmd := exec.Command("which", "chromium")
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-
-	// remove the newline character from the output
-	out = out[:len(out)-1]
-	return string(out)
-}
-
+// populate the articles array with the articles found on the website, which contains the title, link and image
 func populateArticleListItems(els rod.Elements, website types.Website) ([]types.ArticlesListItem, error) {
 	var articlesListItems []types.ArticlesListItem
 

@@ -1,11 +1,11 @@
 package templates
 
 import (
-	"github.com/Bolado/ai-tracker/watcher"
+	"fmt"
 	"time"
 )
 
-templ Index() {
+templ Index(page int) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -21,6 +21,7 @@ templ Index() {
 			<meta name="author" content="Igor"/>
 			<link href="https://cdn.jsdelivr.net/npm/reset-css@5.0.2/reset.min.css" rel="stylesheet"/>
 			<script src="https://cdn.tailwindcss.com"></script>
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
 			<link rel="stylesheet" href="/static/css/index.css"/>
 			<script src="/static/js/index.js"></script>
 			<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2214%22 font-size=%2216%22>🤖</text></svg>"/>
@@ -31,31 +32,70 @@ templ Index() {
 				<h2 class="text-neutral-600 dark:text-neutral-200 m-auto">Making artificial intelligence news more accessible to you ❤️</h2>
 			</header>
 			<main class="min-w-0 max-w-screen-lg m-auto">
-				@articles()
+				@articles(page)
+				@nav(page)
 			</main>
 			<footer class="flex place-content-center">
-				<p class="py-4">Made with ❤️ by <a class="text-cyan-600 dark:text-cyan-300" href="https://github.com/bolado">igor</a></p>
+				<p class="py-4">Made with ❤️ by <a class="text-cyan-900 dark:text-cyan-300" href="https://github.com/bolado">igor</a></p>
 			</footer>
 		</body>
 	</html>
 }
 
-templ articles() {
-	for _, article := range watcher.Articles {
-		<article title={ article.Title } class="m-4 bg-neutral-300 dark:bg-neutral-600 hover:drop-shadow-[0_0_0.5rem_rgba(20,170,200,0.25)] rounded-md">
-			<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer" class="flex flex-col md:flex-row p-6">
+templ articles(page int) {
+	for _, article := range GetPagedArticles(page) {
+		<article title={ article.Title } class="m-4 bg-cyan-600/10 hover:drop-shadow-[0_0_0.5rem_rgba(20,170,200,0.25)] rounded-md">
+			<div class="flex flex-col md:flex-row p-6">
 				<div class="flex justify-between flex-col min-w-[60%] pr-4">
-					<h2 class="text-2xl text-cyan-600 dark:text-cyan-300 font-bold">{ article.Title }</h2>
-					<p class="py-2 text-lg">{ article.Summary }</p>
-					<div class="text-cyan-600 dark:text-cyan-300 font-bold">
-						<p class="inline">{ article.Source } - </p>
+					<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer">
+						<h2 class="text-2xl text-cyan-900 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">{ article.Title }</h2>
+					</a>
+					<p class="py-2 text-lg">
+						{ article.Summary }
+					</p>
+					<div class="text-cyan-900 dark:text-cyan-300 font-bold flex flex-col md:flex-row gap-2">
+						<a href={ templ.SafeURL(article.Link) } target="_blank" rel="noopener noreferrer" class="text-cyan-900 dark:text-cyan-300 font-bold hover:underline hover:decoration-3">Read more</a>
+						<div class="grow"></div>
 						<time class="inline" datetime={ time.Unix(article.Timestamp, 0).Format("2006-01-02T15:04:05Z07:00") }>
-							{ time.Unix(article.Timestamp, 0).Format("Jan 2 2006 15:04") }
+							<p class="inline">{ article.Source } | { time.Unix(article.Timestamp, 0).Format("Jan 2 2006 15:04") }</p>
 						</time>
 					</div>
 				</div>
-				<img alt={ article.Title } src={ article.Image } class="mt-4 md:mt-0 md:w-2/5 object-contain rounded-md"/>
-			</a>
+				<div class="min-w-[40%] max-h-full md:overflow-hidden md:relative">
+					<img alt={ article.Title } src={ article.Image } class="md:absolute inset-0 w-full h-full object-cover rounded-md"/>
+				</div>
+			</div>
 		</article>
 	}
+}
+
+templ nav(page int) {
+	<nav class="flex justify-center">
+		if page > 0 {
+			<a
+				href={ templ.SafeURL(getPrevPageURL(page)) }
+				class="flex justify-center items-center size-12 m-2 bg-cyan-600 dark:bg-cyan-300 hover:brightness-150 text-white dark:text-black rounded-md"
+			>
+				<i class="fa-solid fa-xl fa-arrow-left"></i>
+			</a>
+		}
+		<a href="/" class="flex justify-center items-center size-12 m-2 bg-cyan-600 dark:bg-cyan-300 hover:brightness-150 text-white dark:text-black rounded-md">
+			<i class="fa-solid fa-xl fa-house"></i>
+		</a>
+		if page < GetNumberOfPages() - 1 {
+			<a
+				href={ templ.SafeURL("/?page=" + fmt.Sprint(page+1)) }
+				class="flex justify-center items-center size-12 m-2 bg-cyan-600 dark:bg-cyan-300 hover:brightness-150 text-white dark:text-black rounded-md"
+			>
+				<i class="fa-solid fa-xl fa-arrow-right"></i>
+			</a>
+		}
+	</nav>
+}
+
+func getPrevPageURL(page int) string {
+	if page == 1 {
+		return "/"
+	}
+	return fmt.Sprintf("/?page=%d", page-1)
 }
