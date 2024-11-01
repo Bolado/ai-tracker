@@ -123,7 +123,7 @@ func startRod() (*rod.Browser, error) {
 // watch the websites provided for new articles, summarizing and adding only the non existant ones to the database and the struct array
 func watchWebsite(website types.Website, browser *rod.Browser) error {
 	//load the website url
-	page, err := browser.Page(proto.TargetCreateTarget{URL: website.Url})
+	page, err := browser.Timeout(20 * time.Second).Page(proto.TargetCreateTarget{URL: website.Url})
 	if err != nil {
 		return err
 	}
