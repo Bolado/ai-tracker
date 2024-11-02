@@ -131,13 +131,13 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 	defer page.Close()
 
 	//wait for the page to load
-	page.WaitStable(2 * time.Second)
+	page.Timeout(20 * time.Second).WaitStable(2 * time.Second)
 
 	//zoom out the page to 1% to make sure all the elements are loaded
 	page.Eval("document.body.style.zoom = '1%'")
 
 	//wait for the page to load the rest of the elements
-	page.WaitStable(2 * time.Second)
+	page.Timeout(20 * time.Second).WaitStable(2 * time.Second)
 
 	//create context and cancel function to avoid the context ending before you get elements data
 	ctx, cancel := context.WithCancel(context.Background())
