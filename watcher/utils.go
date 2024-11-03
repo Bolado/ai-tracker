@@ -55,8 +55,12 @@ func parseTimeAndConvertToUnix(timeString string) (int64, error) {
 		"02 Jan 2006 15:04:05",
 		"01/02/2006 03:04:05 PM",
 		"Mon 02 Jan 2006 15.04 MST",
+		"Mon 2 Jan 2006 15.04 MST",
+		"Mon 2 Jan 2006 15.00 MST",
+		"Mon 2 Jan 2006 15.04.05 MST",
 		"January 2, 2006",
 		"02 January 2006",
+		"Mon 2 Jan 2006 15.04 MST",
 	}
 
 	for _, format := range formats {
@@ -64,7 +68,7 @@ func parseTimeAndConvertToUnix(timeString string) (int64, error) {
 			return t.Unix(), nil
 		}
 	}
-	return 0, fmt.Errorf("unsupported time format")
+	return 0, fmt.Errorf("the time %s is not in a valid format", timeString)
 }
 
 // isVerboseTime checks if the time string is in a verbose format.
