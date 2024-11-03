@@ -257,20 +257,20 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 			log.Println(err.Error())
 			return false, err
 		}
+
+		//time string
+		var timeString string
 		if !strings.Contains(website.DateElement, "datetime") {
-			article.Timestamp, err = parseTimeAndConvertToUnix(dateElement.MustText())
-			if err != nil {
-				log.Println(err.Error())
-				return false, err
-			}
+			timeString = dateElement.MustText()
 		} else {
-			datetime := dateElement.MustAttribute("datetime")
-			t, err := time.Parse(time.RFC3339, *datetime)
-			if err != nil {
-				log.Println(err.Error())
-				return false, err
-			}
-			article.Timestamp = t.Unix()
+			timeString = *dateElement.MustAttribute("datetime")
+		}
+
+		//parse the time string
+		article.Timestamp, err = parseTimeAndConvertToUnix(timeString)
+		if err != nil {
+			log.Println(err.Error())
+			return false, err
 		}
 
 	}

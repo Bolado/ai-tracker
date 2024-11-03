@@ -1,79 +1,101 @@
 [
-    {
-        "name": "Wired",
-        "url": "https://www.wired.com/most-recent/",
-        "mainElement": "//div[contains(@data-in-view,'Summary')]",
-        "titleElement": ".//h3",
-        "anchorElement": ".//a[@href]",
-        "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
-        "subtitleElement": "//div[contains(@data-testid,'ContentHeaderAccreditation')]//div",
-        "contentElement": "//div[@data-testid='ArticlePageChunks']//p[contains(@class,'paywall') and not(@class='')]",
-        "dateElement": "//time[@datetime]"
-    },
-    {
-        "name": "The Verge",
-        "url": "https://www.theverge.com/ai-artificial-intelligence",
-        "mainElement": "//div[contains(@class,'duet--content-cards--content-card') and .//div[@class='flex items-center']]",
-        "titleElement": ".//h2/a",
-        "anchorElement": ".//h2/a",
-        "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
-        "subtitleElement": "//h2[preceding-sibling::div[preceding-sibling::ul] or parent::span]",
-        "contentElement": "//div[@class='duet--article--article-body-component']",
-        "dateElement": "//article//time[@datetime]"
-    },
-    {
-        "name": "TechCrunch",
-        "url": "https://techcrunch.com/category/artificial-intelligence/",
-        "mainElement": "//li[contains(@class,'type-post') and descendant::img]",
-        "titleElement": ".//h3/a",
-        "anchorElement": ".//h3/a",
-        "imageElement": ".//img",
-        "subtitleElement": "",
-        "contentElement": "//main//p[contains(@class,'wp-block-paragraph')]",
-        "dateElement": "//div[contains(@class,'article-hero') or contains(@class,'post-date')]//time[@datetime]"
-    },
-    {
-        "name": "The Guardian",
-        "url": "https://www.theguardian.com/technology",
-        "mainElement": "//div[contains(@id,'container-technology')]//li",
-        "titleElement": ".//h3//span",
-        "anchorElement": ".//a",
-        "imageElement": ".//img",
-        "subtitleElement": "//article//div[contains(@style,'stand')]//p[1]",
-        "contentElement": "//article//div[contains(@class,'article')]/p",
-        "dateElement": "//details//span"
-    },
-    {
-        "name": "Reuters",
-        "url": "https://www.reuters.com/technology/artificial-intelligence/",
-        "mainElement": "//div[@data-testid='FeedContent']//li[@data-testid='FeedListItem']",
-        "titleElement": ".//span[@data-testid='Heading']",
-        "anchorElement": ".//a[@data-testid='Title']",
-        "imageElement": ".//img",
-        "subtitleElement": "",
-        "contentElement": "//div[contains(@data-testid,'paragraph')]",
-        "dateElement": "//time[@data-testid='Body']"
-    },
-    {
-        "name": "MIT Technology Review",
-        "url": "https://www.technologyreview.com/topic/artificial-intelligence/",
-        "mainElement": "//div[contains(@class,'homepageStoryCard__wrapper') and descendant::img]",
-        "titleElement": ".//h3",
-        "anchorElement": ".//a[descendant::h3]",
-        "imageElement": ".//a[not(contains(@class,'sponsored'))]//img",
-        "subtitleElement": "//div[contains(@class,'contentArticleHeader__deck')]//p",
-        "contentElement": "//div[contains(@class,'gutenbergContent__content')]//p",
-        "dateElement": "//div[contains(@class,'contentArticleHeader__publishDate')]"
-    },
-    {
-        "name": "BBC",
-        "url": "https://www.bbc.com/innovation/artificial-intelligence",
-        "mainElement": "//div[contains(@data-testid,'nevada')]//div[@data-testid='edinburgh-card']",
-        "titleElement": ".//h2",
-        "anchorElement": ".//a",
-        "imageElement": ".//img",
-        "subtitleElement": "",
-        "contentElement": "//div[@data-component='text-block']//p",
-        "dateElement": "//time"
-    }
+  {
+    "name": "Wired",
+    "url": "https://www.wired.com/most-recent/",
+    "mainElement": "//div[contains(@data-in-view,'Summary')]",
+    "titleElement": ".//h3",
+    "anchorElement": ".//a[@href]",
+    "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
+    "subtitleElement": "//div[contains(@data-testid,'ContentHeaderAccreditation')]//div",
+    "contentElement": "//div[@data-testid='ArticlePageChunks']//p[contains(@class,'paywall') and not(@class='')]",
+    "dateElement": "//time[@datetime]"
+  },
+  {
+    "name": "The Verge",
+    "url": "https://www.theverge.com/ai-artificial-intelligence",
+    "mainElement": "//div[contains(@class,'duet--content-cards--content-card') and .//div[@class='flex items-center']]",
+    "titleElement": ".//h2/a",
+    "anchorElement": ".//h2/a",
+    "imageElement": ".//*[@src[contains(.,'.jpg') or contains(.,'.png') or contains(.,'.jpeg')]]",
+    "subtitleElement": "//h2[preceding-sibling::div[preceding-sibling::ul] or parent::span]",
+    "contentElement": "//div[@class='duet--article--article-body-component']",
+    "dateElement": "//article//time[@datetime]"
+  },
+  {
+    "name": "TechCrunch",
+    "url": "https://techcrunch.com/category/artificial-intelligence/",
+    "mainElement": "//li[contains(@class,'type-post') and descendant::img]",
+    "titleElement": ".//h3/a",
+    "anchorElement": ".//h3/a",
+    "imageElement": ".//img",
+    "subtitleElement": "",
+    "contentElement": "//main//p[contains(@class,'wp-block-paragraph')]",
+    "dateElement": "//div[contains(@class,'article-hero') or contains(@class,'post-date')]//time[@datetime]"
+  },
+  {
+    "name": "The Guardian",
+    "url": "https://www.theguardian.com/technology",
+    "mainElement": "//div[contains(@id,'container-technology')]//li",
+    "titleElement": ".//h3//span",
+    "anchorElement": ".//a",
+    "imageElement": ".//img",
+    "subtitleElement": "//article//div[contains(@style,'stand')]//p[1]",
+    "contentElement": "//article//div[contains(@class,'article')]/p",
+    "dateElement": "//details//span"
+  },
+  {
+    "name": "Reuters",
+    "url": "https://www.reuters.com/technology/artificial-intelligence/",
+    "mainElement": "//div[@data-testid='FeedContent']//li[@data-testid='FeedListItem']",
+    "titleElement": ".//span[@data-testid='Heading']",
+    "anchorElement": ".//a[@data-testid='Title']",
+    "imageElement": ".//img",
+    "subtitleElement": "",
+    "contentElement": "//div[contains(@data-testid,'paragraph')]",
+    "dateElement": "//time[@data-testid='Body']"
+  },
+  {
+    "name": "MIT Technology Review",
+    "url": "https://www.technologyreview.com/topic/artificial-intelligence/",
+    "mainElement": "//div[contains(@class,'homepageStoryCard__wrapper') and descendant::img]",
+    "titleElement": ".//h3",
+    "anchorElement": ".//a[descendant::h3]",
+    "imageElement": ".//a[not(contains(@class,'sponsored'))]//img",
+    "subtitleElement": "//div[contains(@class,'contentArticleHeader__deck')]//p",
+    "contentElement": "//div[contains(@class,'gutenbergContent__content')]//p",
+    "dateElement": "//div[contains(@class,'contentArticleHeader__publishDate')]"
+  },
+  {
+    "name": "BBC",
+    "url": "https://www.bbc.com/innovation/artificial-intelligence",
+    "mainElement": "//div[contains(@data-testid,'nevada')]//div[@data-testid='edinburgh-card']",
+    "titleElement": ".//h2",
+    "anchorElement": ".//a",
+    "imageElement": ".//img",
+    "subtitleElement": "",
+    "contentElement": "//div[@data-component='text-block']//p",
+    "dateElement": "//time"
+  },
+  {
+    "name": "CNBC",
+    "url": "https://www.cnbc.com/technology/",
+    "mainElement": "//div[@data-test='Card' and descendant::img]",
+    "titleElement": ".//a[@class='Card-title']",
+    "anchorElement": ".//a[@class='Card-title']",
+    "imageElement": ".//img",
+    "subtitleElement": "",
+    "contentElement": "//div[@class='group']//p",
+    "dateElement": "//time[@datetime and @data-testid='published-timestamp']"
+  },
+  {
+    "name": "CNN",
+    "url": "https://edition.cnn.com/business/tech",
+    "mainElement": "//div[@data-component-name='card' and descendant::img]",
+    "titleElement": ".//span",
+    "anchorElement": ".//a",
+    "imageElement": ".//img",
+    "subtitleElement": "",
+    "contentElement": "//p[@data-article-gutter='true']",
+    "dateElement": "//div[@class='timestamp vossi-timestamp']"
+  }
 ]
