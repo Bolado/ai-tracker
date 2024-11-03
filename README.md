@@ -24,6 +24,10 @@ The project is delivered as a Docker container, which the image is made through 
 | RSS Feed            | ⏳     |
 | Webhooks            | ⏳     |
 
+## Want to contribute?
+
+Searching and adding new sources for articles is a constant task, if you are interested in contributing to that, sources can be added to the ```words.json``` file. ❤
+
 ## Links
 
 [Source Code](https://github.com/Bolado/ai-tracker)
