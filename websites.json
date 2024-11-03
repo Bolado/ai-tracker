@@ -119,5 +119,16 @@
     "subtitleElement": "//div[@data-testid='prism-headline']//p//span",
     "contentElement": "//div[@data-testid='prism-article-body']//p",
     "dateElement": "//div[@data-testid='prism-byline']/div[1]//div[string-length(text()) > 0]"
+  },
+  {
+    "name": "Yahoo",
+    "url": "https://www.yahoo.com/tech/",
+    "mainElement": "//li[@data-test-locator and descendant::img]",
+    "titleElement": ".//h3/a",
+    "anchorElement": ".//h3/a",
+    "imageElement": ".//img",
+    "subtitleElement": "",
+    "contentElement": "(//article)[1]//p",
+    "dateElement": "(//article)[1]//time[@datetime]"
   }
 ]

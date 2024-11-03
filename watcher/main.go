@@ -99,7 +99,7 @@ func startRod() (*rod.Browser, error) {
 	}
 
 	// Set the launcher to run in headless mode
-	launcher.Headless(true).NoSandbox(true)
+	launcher.HeadlessNew(true).NoSandbox(true)
 
 	// Launch the browser and get the URL
 	url, err := launcher.Launch()
@@ -132,6 +132,21 @@ func watchWebsite(website types.Website, browser *rod.Browser) error {
 
 	//wait for the page to load
 	page.Timeout(20 * time.Second).WaitStable(2 * time.Second)
+
+	// check if the website has a consent form blocking the page
+	if page.MustHasX("//button[contains(@value,'agree')]") {
+		// click the agree button
+		acceptButton, err := page.ElementX("//button[contains(@value,'agree')]")
+		if err != nil {
+			return err
+		}
+		acceptButton.Eval("() => this.click()")
+
+		time.Sleep(5 * time.Second)
+
+		//wait for the page to load
+		page.Timeout(20 * time.Second).WaitStable(2 * time.Second)
+	}
 
 	//zoom out the page to 1% to make sure all the elements are loaded
 	page.Eval("document.body.style.zoom = '1%'")
