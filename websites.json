@@ -112,7 +112,7 @@
   {
     "name": "ABC News",
     "url": "https://abcnews.go.com/Technology",
-    "mainElement": "//section[contains(@class,'ContentRoll__Item')]",
+    "mainElement": "//section[contains(@class,'ContentRoll__Item') and not(.//div[contains(@class,'Video')])]",
     "titleElement": ".//h2/a",
     "anchorElement": ".//h2/a",
     "imageElement": ".//img",

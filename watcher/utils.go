@@ -42,6 +42,8 @@ var (
 		"January 2 2006 3:04 PM",
 		"January 02 2006 3:04 PM",
 		"2006-01-02",
+		"January 02 2006",
+		"January 2 2006",
 
 		// Specific format for your CNN/news case
 		"3:04 PM MST Mon October 2 2006",

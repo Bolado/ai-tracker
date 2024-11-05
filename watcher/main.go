@@ -249,7 +249,7 @@ func analyzeArticle(articleListItem types.ArticlesListItem, browser *rod.Browser
 
 	//get subtitle if there is
 	if website.SubtitleElement != "" {
-		subtitleElement, err := page.ElementX(website.SubtitleElement)
+		subtitleElement, err := page.Timeout(10 * time.Second).ElementX(website.SubtitleElement)
 		if err != nil {
 			log.Println(err.Error())
 			return false, err
