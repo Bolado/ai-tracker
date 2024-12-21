@@ -54,6 +54,9 @@ func StartWatcher() error {
 		log.Printf("Finished checking website %s\n", website.Name)
 	}
 
+	// Clean up temporary files
+	cleanUpTempFiles()
+
 	return nil
 }
 

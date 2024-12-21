@@ -218,3 +218,12 @@ func preprocessTimeString(input string) string {
 
 	return strings.TrimSpace(cleaned)
 }
+
+func cleanUpTempFiles() {
+	// find temp directory
+	tempDir := os.TempDir()
+
+	// use rm -rf to remove all files inside the temp directory
+	cmd := exec.Command("rm", "-rf", tempDir)
+	cmd.Run()
+}
