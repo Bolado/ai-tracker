@@ -14,6 +14,7 @@ require (
 	github.com/cli/browser v1.3.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
@@ -34,6 +35,7 @@ require (
 
 require (
 	github.com/a-h/templ v0.2.778
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
