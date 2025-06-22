@@ -1,0 +1,10 @@
+fastapi==0.104.1
+uvicorn==0.24.0.post1
+python-dotenv==1.0.0
+motor==3.3.1
+beautifulsoup4==4.12.2
+requests==2.31.0
+selenium==4.15.2
+crawl4ai
+pydantic>=2.0.0
+litellm
