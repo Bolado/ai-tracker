@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Global variables
 disable_watcher = False
-watcher_interval = 15  # minutes
+watcher_interval = 60  # minutes (1 hour)
 
 
 @asynccontextmanager
@@ -41,9 +41,9 @@ async def lifespan(app):
     # Get watcher interval from environment
     global watcher_interval
     try:
-        watcher_interval = int(os.getenv("WATCHER_INTERVAL", "15"))
+        watcher_interval = int(os.getenv("WATCHER_INTERVAL", "60"))
     except ValueError:
-        watcher_interval = 15
+        watcher_interval = 60
 
     # Connect to database
     await connect_to_mongo()
@@ -72,15 +72,29 @@ async def lifespan(app):
 
 async def watcher_loop():
     """Run the watcher in a loop with specified interval"""
+    first_run = True
+
     while True:
         try:
-            logger.info("Running watcher...")
+            if first_run:
+                logger.info("🚀 Starting initial watcher run...")
+                first_run = False
+            else:
+                logger.info(f"⏰ Running scheduled watcher (every {watcher_interval} minutes)...")
+
             await start_watcher()
-            logger.info(f"Watcher completed. Sleeping for {watcher_interval} minutes...")
+
+            if first_run:
+                logger.info("✅ Initial watcher run completed successfully")
+            else:
+                logger.info(f"✅ Watcher completed. Next run in {watcher_interval} minutes...")
+
+            # Sleep until next run
             await asyncio.sleep(watcher_interval * 60)
+
         except Exception as e:
-            logger.error(f"Watcher failed: {e}")
-            logger.info(f"Retrying in {watcher_interval} minutes...")
+            logger.error(f"❌ Watcher failed: {e}")
+            logger.info(f"🔄 Retrying in {watcher_interval} minutes...")
             await asyncio.sleep(watcher_interval * 60)
 
 

@@ -32,7 +32,7 @@ class ArticleListExtraction(BaseModel):
 class DetailedArticleContent(BaseModel):
     title: str = Field(..., description="The main headline of the article")
     content: str = Field(..., description="A very concise summary of the article with around 200 characters, **no more** than 240 characters.", max_length=240)
-    publication_date: str = Field(..., description="The date and possible time the article was published in the format YYYY-MM-DD HH:MM:SS")
+    publication_date: str = Field(..., description="The date/time the article was published at.")
 
     @field_validator('content')
     @classmethod
@@ -253,29 +253,14 @@ async def extract_article_details(url: str) -> Optional[DetailedArticleContent]:
                     schema=DetailedArticleContent.model_json_schema(),
                     extraction_type="schema",
                     instruction="""
-                        You are an expert news analyst. Extract specific information from this article page and format it as a JSON object.
-
-                        **STRICT REQUIREMENTS:**
-                        1. **Title:** Extract the main headline exactly as it appears
-                        2. **Publication Date:** Find the publication date/time as it appears on the page (it may be in any format, e.g. 'Oct 26, 2024', '2024/10/26', '26 October 2024', etc). Parse and return it in the format "YYYY-MM-DD HH:MM:SS". If no time is found, use "00:00:00". If you cannot find a date, leave as "1970-01-01 00:00:00".
-                        3. **Content Summary:**
-                           - Write ONE sentence describing the main event/fact
-                           - Start with the main actor (company/person) and what they did
-                           - NO introductory phrases like "The article reports" or "In this piece"
-                           - **ABSOLUTE MAXIMUM: 240 characters total (including spaces)**
-                           - Count every character carefully
-                           - If you exceed 240 characters, your response will be rejected
-
-                        **CRITICAL:** The content field MUST be 240 characters or less. Count carefully.
-
-                        **Example Output:**
+                        From the crawl content, extract the title, publication date and content summary.
+                        Do not miss any information.
+                        Return **ONE** article JSON format should look like this:
                         {
-                            "title": "Meta Acquires Scale AI for $14.3 Billion",
-                            "content": "Meta has acquired Scale AI for $14.3 billion to enhance its AI capabilities and compete with OpenAI and Anthropic in the rapidly evolving artificial intelligence market.",
-                            "publication_date": "2024-10-26 14:30:00"
+                            "title": "Article Title Here",
+                            "content": "A very concise summary of the article with around 200 characters, **no more** than 240 characters.",
+                            "publication_date": "The date and possible time the article was published at."
                         }
-
-                        Now extract from this article page.
                         """
                 ),
             )

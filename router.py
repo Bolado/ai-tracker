@@ -61,7 +61,7 @@ async def read_root(request: Request, page: Optional[int] = Query(0, ge=0)):
     Main page showing AI articles with pagination
     """
     try:
-        collection = await get_collection()
+        collection = await get_articles_collection()
 
         # Calculate skip value
         skip = page * ARTICLES_PER_PAGE
@@ -108,7 +108,7 @@ async def get_articles(page: Optional[int] = Query(0, ge=0), limit: Optional[int
     API endpoint to get articles
     """
     try:
-        collection = await get_collection()
+        collection = await get_articles_collection()
 
         skip = page * limit
         cursor = collection.find({}).sort("timestamp", -1).skip(skip).limit(limit)
@@ -139,7 +139,7 @@ async def get_article(article_id: str):
     """
     try:
         from bson import ObjectId
-        collection = await get_collection()
+        collection = await get_articles_collection()
 
         doc = await collection.find_one({"_id": ObjectId(article_id)})
         if doc:

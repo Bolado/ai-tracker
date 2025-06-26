@@ -97,19 +97,20 @@ async def process_article(article_data: dict, website: Website) -> bool:
     try:
         # Check if article already exists
         if await article_exists_in_db(article_data['url']):
-            logger.info(f"Article already exists: {article_data['title']}")
+            logger.info(f"⏭️  Article already exists: {article_data['title'][:50]}...")
             return False
 
         # Extract details using crawl4ai LLM extraction
-        logger.info(f"Extracting details for: {article_data['title']}")
+        logger.info(f"🔍 Extracting details for: {article_data['title'][:50]}...")
         details = await extract_article_details(article_data['url'])
         if not details or not details.content:
-            logger.warning(f"No content found for: {article_data['title']}")
+            logger.warning(f"⚠️  No content found for: {article_data['title'][:50]}...")
             return False
 
         # Classify article (optional, can use details.content)
+        logger.info(f"🏷️  Classifying article: {article_data['title'][:50]}...")
         if not await classify_article(details.content):
-            logger.info(f"Article not AI-related: {article_data['title']}")
+            logger.info(f"❌ Article not AI-related: {article_data['title'][:50]}...")
             return False
 
         # Create Article object
@@ -124,11 +125,11 @@ async def process_article(article_data: dict, website: Website) -> bool:
         )
         await save_article(article)
         articles.append(article)
-        logger.info(f"Successfully processed article: {article_data['title']}")
+        logger.info(f"✅ Successfully processed article: {article_data['title'][:50]}...")
         return True
 
     except Exception as e:
-        logger.error(f"Error processing article {article_data['title']}: {e}")
+        logger.error(f"❌ Error processing article {article_data['title'][:50]}...: {e}")
         return False
 
 
@@ -151,47 +152,85 @@ async def save_article(article: Article):
 
 async def start_watcher():
     """Start the website watcher process"""
-    logger.info("Starting watcher...")
+    logger.info("🔍 Starting website watcher...")
+
+    start_time = datetime.now()
+    total_articles_found = 0
+    total_articles_processed = 0
+    website_stats = {}
 
     try:
         # Load configuration
+        logger.info("📚 Loading configuration...")
         load_words()
         await load_websites()
 
+        if not websites:
+            logger.warning("⚠️ No websites configured. Please check websites.json")
+            return
+
+        logger.info(f"🌐 Processing {len(websites)} websites...")
+
         # Process each website
-        for website in websites:
+        for i, website in enumerate(websites, 1):
             try:
-                logger.info(f"Processing website: {website.name} ({website.url})")
+                logger.info(f"📰 [{i}/{len(websites)}] Processing: {website.name} ({website.url})")
 
                 # Scrape articles using LLM-powered extraction
                 scraped_articles = await scrape_articles(website)
-                logger.info(f"Found {len(scraped_articles)} articles from {website.name}")
+                total_articles_found += len(scraped_articles)
+                logger.info(f"📄 Found {len(scraped_articles)} articles from {website.name}")
 
                 # Process each scraped article
                 processed_count = 0
-                for article_data in scraped_articles:
+                for j, article_data in enumerate(scraped_articles, 1):
                     try:
+                        logger.info(f"  📝 [{j}/{len(scraped_articles)}] Processing: {article_data['title'][:50]}...")
+
                         if await process_article(article_data, website):
                             processed_count += 1
+                            total_articles_processed += 1
 
                         # Rate limiting between articles
                         await asyncio.sleep(1)
 
                     except Exception as e:
-                        logger.error(f"Error processing article {article_data.get('title', 'Unknown')}: {e}")
+                        logger.error(f"❌ Error processing article {article_data.get('title', 'Unknown')}: {e}")
                         continue
 
-                logger.info(f"Processed {processed_count} new articles from {website.name}")
+                website_stats[website.name] = {
+                    'found': len(scraped_articles),
+                    'processed': processed_count
+                }
+                logger.info(f"✅ {website.name}: {processed_count}/{len(scraped_articles)} articles processed")
 
                 # Rate limiting between websites
-                await asyncio.sleep(2)
+                if i < len(websites):  # Don't sleep after the last website
+                    await asyncio.sleep(2)
 
             except Exception as e:
-                logger.error(f"Error processing website {website.name}: {e}")
+                logger.error(f"❌ Error processing website {website.name}: {e}")
+                website_stats[website.name] = {'found': 0, 'processed': 0, 'error': str(e)}
                 continue
 
-        logger.info("Watcher completed")
+        # Report final statistics
+        end_time = datetime.now()
+        duration = (end_time - start_time).total_seconds()
+
+        logger.info("📊 Watcher Statistics:")
+        logger.info(f"   ⏱️  Duration: {duration:.1f} seconds")
+        logger.info(f"   📄 Total articles found: {total_articles_found}")
+        logger.info(f"   ✅ Total articles processed: {total_articles_processed}")
+        logger.info(f"   📈 Success rate: {(total_articles_processed/total_articles_found*100):.1f}%" if total_articles_found > 0 else "   📈 Success rate: N/A")
+
+        for website_name, stats in website_stats.items():
+            if 'error' in stats:
+                logger.info(f"   🌐 {website_name}: ERROR - {stats['error']}")
+            else:
+                logger.info(f"   🌐 {website_name}: {stats['processed']}/{stats['found']} articles")
+
+        logger.info("🎉 Watcher completed successfully")
 
     except Exception as e:
-        logger.error(f"Watcher failed: {e}")
+        logger.error(f"❌ Watcher failed: {e}")
         raise
