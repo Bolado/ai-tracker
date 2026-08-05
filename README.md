@@ -4,7 +4,7 @@ This project aims to give users a quick, easy way to get the gist of news articl
 
 The app brings together a range of tools—like Go, HTMX, TailwindCSS, Docker, and OpenAI’s API—to make it all happen.
 
-**The project can be found running [in here](https://aitracker.news).**
+![Website Screenshot](screenshot.png)
 
 ## Delivery
 
